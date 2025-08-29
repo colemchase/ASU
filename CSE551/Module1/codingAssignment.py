@@ -16,8 +16,21 @@ for i in range(N):
     for j in range(N):
         inv[i][W[i][j]-1] = j+1
 
+men = [i for i in range(1, N+1)]
 
-employee = {} # add them in as their number not the index
+women = {} # add them in as their number not the index 
+
+while len(men) > 0: # keep letting men propose until they are all matched
+    man = M[men[0]-1] # grab the first mans proposal picks
+    while len(man) > 0: # keep letting that man propose until he is matched
+        pick = man.pop(0) # grab the current mans top proposal
+        if pick not in women: # check women is not already taken
+            women[pick] = men[0] # match them
+            men.pop(0) # remove man from dating pool
+        else: # women is already taken
+            # check inverse array to win or be beaten
+            if 
+
 
 # if man has a selection, propose
 
