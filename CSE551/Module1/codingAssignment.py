@@ -16,35 +16,27 @@ for i in range(N):
     for j in range(N):
         inv[i][W[i][j]-1] = j+1
 
-men = [i for i in range(1, N+1)]
+men = [i for i in range(1, N+1)] # unmatched men
 
-women = {} # add them in as their number not the index 
+employee = {} # add them in as their number not the index 
 
 while len(men) > 0: # keep letting men propose until they are all matched
     man = M[men[0]-1] # grab the first mans proposal picks
     while len(man) > 0: # keep letting that man propose until he is matched
         pick = man.pop(0) # grab the current mans top proposal
-        if pick not in women: # check women is not already taken
-            women[pick] = men[0] # match them
+        if pick not in employee: # check women is not taken, 
+            employee[pick] = men[0] # match them
             men.pop(0) # remove man from dating pool
-        else: # women is already taken
-            # check inverse array to win or be beaten
-            if 
+        elif inv[pick][employee[pick]] < inv[pick][men[0]]: # taken but by less favorable, wants to switch
+            men.append(employee[pick])
+            employee[pick] = men[0] # match them
+            men.pop(0) # remove man from dating pool
 
-
-# if man has a selection, propose
-
-# if woman available, match them and take then out their piles and place in match pile
-# if women not available steal
-
-
-
-
-
+print(employee)
 
 # ''' --- Visualizing the result, Printing the output --- '''
-# Names = [ ['HR', 'CRM', 'Admin', 'Research', 'Development'],      # Initialize the mapping of names
-#          ['Adam', 'Bob', 'Clare', 'Diane', 'Emily'] ]
-# print('Result is:-')
+Names = [ ['HR', 'CRM', 'Admin', 'Research', 'Development'],      # Initialize the mapping of names
+         ['Adam', 'Bob', 'Clare', 'Diane', 'Emily'] ]
+print('Result is:-')
 # for i in range(N):
 #     print(Names[0][i], ":", Names[1][employee[i]-1])                # Map the result to the names
