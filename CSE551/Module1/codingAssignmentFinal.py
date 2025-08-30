@@ -34,14 +34,36 @@ for i in range(N):
     for j in range(N):
         inverse_pref[i][W[i][j]] = j
 
-# print(inverse_pref)
+
+# Keeping track of who is matched/unmatched
+unmatched_departments = [i for i in range(N)]
+matches = {}
+
+# Allow unmatched departments to propose to employees
+while len(unmatched_departments) > 0:
+    current_department = unmatched_departments.pop(0)
+    remaining_proposals = M[current_department]
+    while len(remaining_proposals) > 0:
+        latest_pick = remaining_proposals.pop(0)
+        if latest_pick not in matches:
+            matches[latest_pick] = current_department
+        elif inverse_pref[latest_pick][matches[latest_pick]] > inverse_pref[latest_pick][current_department]:
+            loser = matches[latest_pick]
+            matches[latest_pick] = current_department
+            unmatched_departments.append(loser)
+    M[current_department] = remaining_proposals
+
+# Adjusting result so print works untouched
+employee = {}
+for k in matches.keys():
+    employee[matches[k]] = k+1
 
 
 ''' --- Visualizing the result, Printing the output --- '''
 Names = [ ['HR', 'CRM', 'Admin', 'Research', 'Development'],      # Initialize the mapping of names
          ['Adam', 'Bob', 'Clare', 'Diane', 'Emily'] ]
-# print('Result is:-')
-# for i in range(N):
-#     print(Names[0][i], ":", Names[1][employee[i]-1])                # Map the result to the names
+print('Result is:-')
+for i in range(N):
+    print(Names[0][i], ":", Names[1][employee[i]-1])                # Map the result to the names
 
 
