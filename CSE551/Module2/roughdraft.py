@@ -1,7 +1,11 @@
 # Function to perform Kruskal's algorithm for single link k-clustering
 def greedy_clustering_kruskal(distance_matrix, k):
 
-    
+    # If we want k=2 clusters, we must remove the largest edge in a mst from all the nodes
+
+    # Distance from node i node j is the sqrt of the sum difference of each weight in node i 
+    # to the respective weight in node j
+
 
     return list(clusters.values())  # Return the clusters
 
