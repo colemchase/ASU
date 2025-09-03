@@ -1,11 +1,54 @@
 # Function to perform Kruskal's algorithm for single link k-clustering
+import heapq
+
+
 def greedy_clustering_kruskal(distance_matrix, k):
 
     # If we want k=2 clusters, we must remove the largest edge in a mst from all the nodes
+    curr_clusters = len(distance_matrix)
+    # The nodes in each end of that edge are the heads for our two clusters
+    edges = []
+    for i in range(len(distance_matrix)):
+        for j in range(i+1, len(distance_matrix[0])):
+            if i != j:
+                heapq.heappush(edges, (distance_matrix[i][j], i, j))
 
-    # Distance from node i node j is the sqrt of the sum difference of each weight in node i 
-    # to the respective weight in node j
+    def find(p, i):
+        if p[i] != i:
+            p[i] = find(p, p[i])
+        return p[i]
 
+    def union(p, r, i, j):
+        root_i = find(p, i)
+        root_j = find(p, j)
+
+        if root_i == root_j: # already in same cluster
+            return False
+        
+        if r[root_i] < r[root_j]: # place i under j
+            p[root_i] = p[root_j]
+        elif r[root_i] > r[root_j]: # place j under i
+            p[root_j] = p[root_i]
+        else:
+            p[root_i] = p[root_j] # place i under j but increment rankj since they are the same size plus one
+            r[root_j]+=1
+
+        return True
+
+    parents = [i for i in range(len(distance_matrix))]
+    rank = [0 for _ in range(len(distance_matrix))]
+    count = len(distance_matrix)-k # stops clustering when we reach k clusters
+    while count > 0: 
+        d, i, j = heapq.heappop(edges)
+        if union(parents, rank, i, j):
+            count-=1
+
+    clusters = {}
+    for i in range(len(parents)): 
+        parents[i] = find(parents, i) # clean up flattening
+        if parents[i] not in clusters: # add node index to a cluster for nodes with same parent
+            clusters[parents[i]] = []
+        clusters[parents[i]].append(i) # add node to cluster
 
     return list(clusters.values())  # Return the clusters
 
