@@ -4,21 +4,18 @@ import heapq
 
 def greedy_clustering_kruskal(distance_matrix, k):
 
-    # If we want k=2 clusters, we must remove the largest edge in a mst from all the nodes
-    curr_clusters = len(distance_matrix)
-    # The nodes in each end of that edge are the heads for our two clusters
-    edges = []
+    edges = [] # putting our edges into a min heap
     for i in range(len(distance_matrix)):
         for j in range(i+1, len(distance_matrix[0])):
             if i != j:
                 heapq.heappush(edges, (distance_matrix[i][j], i, j))
 
-    def find(p, i):
+    def find(p, i): # finds the root parent for a node in a cluster
         if p[i] != i:
             p[i] = find(p, p[i])
         return p[i]
 
-    def union(p, r, i, j):
+    def union(p, r, i, j): # places joins clusters if they do not share the same root node (basically not in same cluster)
         root_i = find(p, i)
         root_j = find(p, j)
 
@@ -35,14 +32,18 @@ def greedy_clustering_kruskal(distance_matrix, k):
 
         return True
 
-    parents = [i for i in range(len(distance_matrix))]
-    rank = [0 for _ in range(len(distance_matrix))]
+    # vars used during kruskal's algo
+    parents = [i for i in range(len(distance_matrix))] # keeps track of parent node of a cluster 
+    rank = [0 for _ in range(len(distance_matrix))] # keeps track of dept of cluster so no skinny trees
     count = len(distance_matrix)-k # stops clustering when we reach k clusters
+
+    # kruskal's algo
     while count > 0: 
         d, i, j = heapq.heappop(edges)
         if union(parents, rank, i, j):
             count-=1
 
+    # clean up for printing
     clusters = {}
     for i in range(len(parents)): 
         parents[i] = find(parents, i) # clean up flattening
