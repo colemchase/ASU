@@ -36,12 +36,16 @@ class SplayTree:
                 return root
             # Zig-Zig (Left Left)
             if key < root.left.key:
-
+                root.left.left = self.splay(root.left.left, key)
+                if root.left.left:
+                    root.left = self.left.right_rotate(root.left)
             # Zig-Zag (Left Right)
             elif key > root.left.key:
-                
+                root.left.right = self.splay(root.left.right, key)
+                if root.left.right:
+                    root.left = self.left.left_rotate(root.left)
 
-            return something
+            return root if not root.left else self.right_rotate(root)
 
         # Key lies in the right subtree
         if key > root.key:
