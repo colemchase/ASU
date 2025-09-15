@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+@author: write your name here
+
+from sys import maxsize                        # import max int for initialization
+
+arr = [15, 13, 8, 14, 12, 9, 10, 15, 9]        # initialize the input array
+ans = -maxsize - 1                             # initialize ans variable to -intmax
+
+# WRITE YOUR CODE HERE
+
+print(ans)                                     # printing the answer
