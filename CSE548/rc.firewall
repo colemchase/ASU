@@ -1,21 +1,25 @@
 #!/bin/sh
 
 #################################################################################
-# rc.firewall - AWS Gateway Firewall for CSE 548 Project
-# CHASE COLEMAN
-# Client: 10.0.0.9 → Gateway: 10.0.0.4
+# rc.firewall - Apporto Gateway Stateless Firewall for CSE 548 Project
+# Author: Chase Coleman
+# Environment: Apporto (Client → Gateway → NAT)
+#
+# Client:  10.0.2.70 → Gateway (internal): 10.0.2.1 → Gateway (external): 10.0.1.69
+#
 # Requirements:
-#  - Allow: HTTP from client to gateway
-#  - Allow: client ping ONLY to 8.8.8.8 via NAT
-#  - Deny: client ping to gateway
-#  - Deny: client ping to 8.8.4.4
+#  - Allow: HTTP from Client (10.0.2.70) to Gateway (10.0.2.1)
+#  - Allow: Client ping ONLY to 8.8.8.8 via NAT
+#  - Deny:  Client ping to Gateway
+#  - Deny:  Client ping to 8.8.4.4
 #  - Default policy: DROP
 #################################################################################
 
 # === 1. Configuration ===
-Internet_IFACE="ens5"
-Client_IP="10.0.0.9"
-Gateway_IP="10.0.0.4"
+External_IFACE="ens3"      # Connected to Switch1 (10.0.1.0/24, NAT/Internet)
+Internal_IFACE="ens4"      # Connected to Switch2 (10.0.2.0/24, Client network)
+Client_IP="10.0.2.70"
+Gateway_INT_IP="10.0.2.1"
 IPTABLES="/sbin/iptables"
 
 # === 2. Cleanup ===
@@ -28,48 +32,48 @@ echo "1" > /proc/sys/net/ipv4/ip_forward
 
 # === 3. Base Policies ===
 $IPTABLES -P INPUT DROP
-$IPTABLES -P OUTPUT ACCEPT
+$IPTABLES -P OUTPUT DROP
 $IPTABLES -P FORWARD DROP
 
 # === 4. INPUT Rules (traffic TO gateway) ===
 
-# Allow HTTP from client to Apache
+# Allow HTTP from Client to Apache (port 80)
 $IPTABLES -A INPUT -p tcp -s $Client_IP --dport 80 -j ACCEPT
 
-# Allow loopback
+# Allow loopback traffic
 $IPTABLES -A INPUT -i lo -j ACCEPT
 
-# Drop ICMP ping to gateway (project requirement)
+# Drop all ICMP echo requests to Gateway (deny ping)
 $IPTABLES -A INPUT -p icmp --icmp-type echo-request -j DROP
-
-# Accept established traffic
-$IPTABLES -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 # === 5. FORWARD Rules (traffic THROUGH gateway) ===
 
-# Allow ping from client ONLY to 8.8.8.8
+# Allow Client ping ONLY to 8.8.8.8 (both directions, echo-request and echo-reply)
 $IPTABLES -A FORWARD -s $Client_IP -d 8.8.8.8 -p icmp --icmp-type echo-request -j ACCEPT
-$IPTABLES -A FORWARD -d $Client_IP -s 8.8.8.8 -p icmp --icmp-type echo-reply -j ACCEPT
+$IPTABLES -A FORWARD -s 8.8.8.8 -d $Client_IP -p icmp --icmp-type echo-reply -j ACCEPT
 
-# Explicitly BLOCK ping to 8.8.4.4
+# Explicitly block Client ping to 8.8.4.4
 $IPTABLES -A FORWARD -s $Client_IP -d 8.8.4.4 -p icmp --icmp-type echo-request -j DROP
 
-# === 6. OUTPUT Rules (from gateway itself) ===
+# === 6. OUTPUT Rules (traffic ORIGINATING from gateway itself) ===
 
-# Block gateway from pinging anything (project requirement)
-$IPTABLES -A OUTPUT -p icmp -j DROP
-
-# Allow DNS for stability (gateway only)
+# Allow DNS for Gateway functionality
 $IPTABLES -A OUTPUT -p udp --dport 53 -j ACCEPT
 $IPTABLES -A OUTPUT -p tcp --dport 53 -j ACCEPT
 
-# Reject wget/curl/apt so gateway cannot access internet
+# Allow loopback output
+$IPTABLES -A OUTPUT -o lo -j ACCEPT
+
+# Drop all ICMP pings from Gateway (project requirement)
+$IPTABLES -A OUTPUT -p icmp --icmp-type echo-request -j DROP
+
+# Reject outbound HTTP/HTTPS from Gateway (no direct Internet access)
 $IPTABLES -A OUTPUT -p tcp --dport 80 -j REJECT
 $IPTABLES -A OUTPUT -p tcp --dport 443 -j REJECT
 
 # === 7. NAT Rules ===
 
-# NAT client ICMP to internet (required for 8.8.8.8 ping)
-$IPTABLES -t nat -A POSTROUTING -s $Client_IP -d 8.8.8.8 -o $Internet_IFACE -j MASQUERADE
+# Enable NAT (MASQUERADE) for outbound traffic to Internet
+$IPTABLES -t nat -A POSTROUTING -s 10.0.2.0/24 -o $External_IFACE -j MASQUERADE
 
 echo "Firewall rules applied successfully."
