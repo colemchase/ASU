@@ -27,7 +27,7 @@ $IPTABLES -F
 $IPTABLES -X
 $IPTABLES -t nat -F
 
-# Enable IP forwarding
+# Enable IP forwarding (router behavior)
 echo "1" > /proc/sys/net/ipv4/ip_forward
 
 # === 3. Base Policies ===
@@ -35,7 +35,7 @@ $IPTABLES -P INPUT DROP
 $IPTABLES -P OUTPUT DROP
 $IPTABLES -P FORWARD DROP
 
-# === 4. INPUT Rules (traffic TO gateway) ===
+# === 4. INPUT Rules (traffic TO the gateway) ===
 
 # Allow HTTP from Client to Apache (port 80)
 $IPTABLES -A INPUT -p tcp -s $Client_IP --dport 80 -j ACCEPT
@@ -46,34 +46,38 @@ $IPTABLES -A INPUT -i lo -j ACCEPT
 # Drop all ICMP echo requests to Gateway (deny ping)
 $IPTABLES -A INPUT -p icmp --icmp-type echo-request -j DROP
 
-# === 5. FORWARD Rules (traffic THROUGH gateway) ===
+# === 5. FORWARD Rules (traffic THROUGH the gateway) ===
 
-# Allow Client ping ONLY to 8.8.8.8 (both directions, echo-request and echo-reply)
-$IPTABLES -A FORWARD -s $Client_IP -d 8.8.8.8 -p icmp --icmp-type echo-request -j ACCEPT
-$IPTABLES -A FORWARD -s 8.8.8.8 -d $Client_IP -p icmp --icmp-type echo-reply -j ACCEPT
+# Allow Client → Internet ping ONLY to 8.8.8.8
+$IPTABLES -A FORWARD -s $Client_IP -d 8.8.8.8 -p icmp --icmp-type echo-request -i $Internal_IFACE -o $External_IFACE -j ACCEPT
+# Allow returning echo replies (explicit stateless backflow)
+$IPTABLES -A FORWARD -s 8.8.8.8 -d $Client_IP -p icmp --icmp-type echo-reply -i $External_IFACE -o $Internal_IFACE -j ACCEPT
 
 # Explicitly block Client ping to 8.8.4.4
 $IPTABLES -A FORWARD -s $Client_IP -d 8.8.4.4 -p icmp --icmp-type echo-request -j DROP
 
-# === 6. OUTPUT Rules (traffic ORIGINATING from gateway itself) ===
+# Allow HTTP traffic forwarding (if needed for Client → Gateway Apache test)
+$IPTABLES -A FORWARD -p tcp -s $Client_IP --dport 80 -i $Internal_IFACE -o $Internal_IFACE -j ACCEPT
 
-# Allow DNS for Gateway functionality
+# === 6. OUTPUT Rules (traffic FROM the gateway) ===
+
+# Allow DNS (gateway can resolve names)
 $IPTABLES -A OUTPUT -p udp --dport 53 -j ACCEPT
 $IPTABLES -A OUTPUT -p tcp --dport 53 -j ACCEPT
 
-# Allow loopback output
+# Allow loopback
 $IPTABLES -A OUTPUT -o lo -j ACCEPT
 
-# Drop all ICMP pings from Gateway (project requirement)
+# Drop gateway-originated pings
 $IPTABLES -A OUTPUT -p icmp --icmp-type echo-request -j DROP
 
-# Reject outbound HTTP/HTTPS from Gateway (no direct Internet access)
+# Block HTTP/HTTPS from gateway
 $IPTABLES -A OUTPUT -p tcp --dport 80 -j REJECT
 $IPTABLES -A OUTPUT -p tcp --dport 443 -j REJECT
 
 # === 7. NAT Rules ===
 
-# Enable NAT (MASQUERADE) for outbound traffic to Internet
+# NAT traffic leaving the external interface
 $IPTABLES -t nat -A POSTROUTING -s 10.0.2.0/24 -o $External_IFACE -j MASQUERADE
 
-echo "Firewall rules applied successfully."
+echo "Stateless firewall rules applied successfully."
