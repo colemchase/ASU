@@ -15,8 +15,8 @@
 #################################################################################
 
 # === 1. Configuration ===
-External_IFACE="ens3"      # Connected to Switch1 (10.0.1.0/24)
-Internal_IFACE="ens4"      # Connected to Switch2 (10.0.2.0/24)
+External_IFACE="ens3"      # Connected to Switch1 (10.0.1.0/24 NAT/Internet)
+Internal_IFACE="ens4"      # Connected to Switch2 (10.0.2.0/24 Client network)
 Client_IP="10.0.2.70"
 Gateway_INT_IP="10.0.2.1"
 IPTABLES="/sbin/iptables"
@@ -34,44 +34,51 @@ $IPTABLES -P INPUT DROP
 $IPTABLES -P OUTPUT DROP
 $IPTABLES -P FORWARD DROP
 
-# === 4. INPUT (to the gateway itself) ===
+# === 4. INPUT Rules (traffic TO gateway) ===
 
-# Allow HTTP (Apache test)
-$IPTABLES -A INPUT -p tcp -s $Client_IP --dport 80 -j ACCEPT
+# Allow HTTP from the Client to Apache (internal interface)
+$IPTABLES -A INPUT -i $Internal_IFACE -p tcp -s $Client_IP --dport 80 -j ACCEPT
 
-# Allow loopback
+# Allow loopback for local processes
 $IPTABLES -A INPUT -i lo -j ACCEPT
 
-# Drop ICMP echo requests to the gateway (deny ping)
+# Drop ICMP echo requests to the Gateway (deny ping)
 $IPTABLES -A INPUT -p icmp --icmp-type echo-request -j DROP
 
-# === 5. FORWARD (traffic through the gateway) ===
+# Allow related responses for legitimate sessions (stateless safe for return traffic)
+$IPTABLES -A INPUT -p tcp --sport 80 -m tcp -j ACCEPT
 
-# Allow client → Internet ping to 8.8.8.8 (stateless explicit reply path)
-$IPTABLES -A FORWARD -s $Client_IP -d 8.8.8.8 -p icmp --icmp-type echo-request -i $Internal_IFACE -o $External_IFACE -j ACCEPT
-$IPTABLES -A FORWARD -s 8.8.8.8 -d $Client_IP -p icmp --icmp-type echo-reply -i $External_IFACE -o $Internal_IFACE -j ACCEPT
+# === 5. FORWARD Rules (traffic THROUGH gateway) ===
 
-# Deny client → 8.8.4.4 pings
+# Allow Client → Internet ping ONLY to 8.8.8.8 (both request and reply)
+$IPTABLES -A FORWARD -i $Internal_IFACE -o $External_IFACE -s $Client_IP -d 8.8.8.8 -p icmp --icmp-type echo-request -j ACCEPT
+$IPTABLES -A FORWARD -i $External_IFACE -o $Internal_IFACE -s 8.8.8.8 -d $Client_IP -p icmp --icmp-type echo-reply -j ACCEPT
+
+# Explicitly block Client → 8.8.4.4 pings
 $IPTABLES -A FORWARD -s $Client_IP -d 8.8.4.4 -p icmp --icmp-type echo-request -j DROP
 
-# === 6. OUTPUT (originating from the gateway) ===
+# Allow HTTP forwarding (for the client → Gateway Apache test only)
+$IPTABLES -A FORWARD -i $Internal_IFACE -o $Internal_IFACE -p tcp -s $Client_IP --dport 80 -j ACCEPT
 
-# Allow DNS for name resolution
+# === 6. OUTPUT Rules (from the Gateway itself) ===
+
+# Allow DNS for gateway lookups
 $IPTABLES -A OUTPUT -p udp --dport 53 -j ACCEPT
 $IPTABLES -A OUTPUT -p tcp --dport 53 -j ACCEPT
 
 # Allow loopback output
 $IPTABLES -A OUTPUT -o lo -j ACCEPT
 
-# Drop gateway pings
+# Block gateway-originated pings
 $IPTABLES -A OUTPUT -p icmp --icmp-type echo-request -j DROP
 
 # Block outbound HTTP/HTTPS from gateway
 $IPTABLES -A OUTPUT -p tcp --dport 80 -j REJECT
 $IPTABLES -A OUTPUT -p tcp --dport 443 -j REJECT
 
-# === 7. NAT (masquerading for outbound traffic) ===
+# === 7. NAT Rules (for Client outbound traffic) ===
 
+# Enable NAT (MASQUERADE) for traffic leaving to Internet
 $IPTABLES -t nat -A POSTROUTING -s 10.0.2.0/24 -o $External_IFACE -j MASQUERADE
 
-echo "Stateless firewall rules applied successfully."
+echo "Firewall rules applied successfully."
