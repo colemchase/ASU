@@ -1,26 +1,24 @@
 #!/bin/sh
-
 #################################################################################
 # rc.firewall - Apporto Gateway Stateless Firewall for CSE 548 Project
 # Author: Chase Coleman
 # Environment: Apporto (Client → Gateway → NAT)
 #
-# Network Topology:
-#   Client:  10.0.2.70  →  Gateway (internal): 10.0.2.1  →  Gateway (external): 10.0.1.69 → NAT
+# Client:  10.0.2.70 → Gateway (internal): 10.0.2.1 → Gateway (external): 10.0.1.69
 #
 # Requirements:
 #  - Allow: HTTP from Client (10.0.2.70) to Gateway (10.0.2.1)
 #  - Allow: Client ping ONLY to 8.8.8.8 via NAT
 #  - Deny:  Client ping to Gateway
 #  - Deny:  Client ping to 8.8.4.4
+#  - Deny:  Gateway-originated ping (Gateway cannot ping anything)
 #  - Default policy: DROP
 #################################################################################
 
 # === 1. Configuration ===
-External_IFACE="ens3"      # Connected to Switch1 (10.0.1.0/24 → NAT/Internet)
-Internal_IFACE="ens4"      # Connected to Switch2 (10.0.2.0/24 → Client network)
+External_IFACE="ens3"      # Connected to Switch1 (10.0.1.0/24, NAT/Internet)
+Internal_IFACE="ens4"      # Connected to Switch2 (10.0.2.0/24, Client network)
 Client_IP="10.0.2.70"
-Gateway_INT_IP="10.0.2.1"
 IPTABLES="/sbin/iptables"
 
 # === 2. Cleanup ===
@@ -28,63 +26,55 @@ $IPTABLES -F
 $IPTABLES -X
 $IPTABLES -t nat -F
 
-# Enable IP forwarding (acts as a router)
+# Enable IP forwarding
 echo "1" > /proc/sys/net/ipv4/ip_forward
 
-# === 3. Default Policies (Stateless by default) ===
+# === 3. Default Policies ===
 $IPTABLES -P INPUT DROP
 $IPTABLES -P OUTPUT DROP
 $IPTABLES -P FORWARD DROP
 
-# === 4. INPUT Rules (traffic TO the Gateway itself) ===
+# === 4. INPUT Rules (traffic TO gateway) ===
 
-# Allow HTTP from the Client to the Gateway’s Apache service
-$IPTABLES -A INPUT -i $Internal_IFACE -p tcp -s $Client_IP -d $Gateway_INT_IP --dport 80 -j ACCEPT
+# Allow HTTP from the client to Apache (port 80)
+$IPTABLES -A INPUT -i $Internal_IFACE -p tcp -s $Client_IP --dport 80 -j ACCEPT
 
-# Allow established/related responses for ongoing TCP connections (needed for HTTP)
-$IPTABLES -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-# Allow loopback (local services)
+# Allow loopback (local processes)
 $IPTABLES -A INPUT -i lo -j ACCEPT
+$IPTABLES -A OUTPUT -o lo -j ACCEPT
 
-# Deny all ICMP echo-requests (no pings to the gateway)
+# Deny ping to gateway (block ICMP echo-request to 10.0.2.1)
 $IPTABLES -A INPUT -p icmp --icmp-type echo-request -j DROP
 
-# === 5. FORWARD Rules (traffic THROUGH the Gateway) ===
+# Allow established HTTP responses only (stateless but necessary)
+$IPTABLES -A INPUT -p tcp --sport 80 -j ACCEPT
 
-# Allow Client ping ONLY to 8.8.8.8
+# === 5. FORWARD Rules (traffic THROUGH gateway) ===
+
+# Allow client to ping ONLY 8.8.8.8 through NAT
 $IPTABLES -A FORWARD -i $Internal_IFACE -o $External_IFACE -s $Client_IP -d 8.8.8.8 -p icmp --icmp-type echo-request -j ACCEPT
-# Allow reply packets back from 8.8.8.8
 $IPTABLES -A FORWARD -i $External_IFACE -o $Internal_IFACE -s 8.8.8.8 -d $Client_IP -p icmp --icmp-type echo-reply -j ACCEPT
 
-# Explicitly block Client ping to 8.8.4.4
+# Explicitly block client ping to 8.8.4.4
 $IPTABLES -A FORWARD -i $Internal_IFACE -s $Client_IP -d 8.8.4.4 -p icmp --icmp-type echo-request -j DROP
 
-# Allow HTTP forwarding inside the internal network (for Client → Gateway test)
-$IPTABLES -A FORWARD -i $Internal_IFACE -o $Internal_IFACE -p tcp -s $Client_IP -d $Gateway_INT_IP --dport 80 -j ACCEPT
+# Allow HTTP through internal LAN (client to gateway web server)
+$IPTABLES -A FORWARD -i $Internal_IFACE -o $Internal_IFACE -p tcp -s $Client_IP --dport 80 -j ACCEPT
 
-# === 6. OUTPUT Rules (traffic ORIGINATING FROM the Gateway) ===
+# === 6. OUTPUT Rules (traffic FROM gateway itself) ===
 
-# Allow DNS (needed for the gateway to resolve domain names)
+# Allow DNS queries only (so gateway can resolve hostnames)
 $IPTABLES -A OUTPUT -p udp --dport 53 -j ACCEPT
 $IPTABLES -A OUTPUT -p tcp --dport 53 -j ACCEPT
 
-# Allow loopback output
-$IPTABLES -A OUTPUT -o lo -j ACCEPT
-
-# Deny all ICMP echo-requests from gateway
+# Block ALL pings originating from gateway
 $IPTABLES -A OUTPUT -p icmp --icmp-type echo-request -j DROP
 
-# Deny HTTP/HTTPS from gateway (gateway cannot browse the internet)
+# Block gateway-originated HTTP/HTTPS
 $IPTABLES -A OUTPUT -p tcp --dport 80 -j REJECT
 $IPTABLES -A OUTPUT -p tcp --dport 443 -j REJECT
 
-# Allow established/related outbound responses (for DNS and NAT replies)
-$IPTABLES -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-# === 7. NAT Rules ===
-
-# Masquerade internal network to appear as the gateway on external interface
+# === 7. NAT Rules (for Client outbound traffic) ===
 $IPTABLES -t nat -A POSTROUTING -s 10.0.2.0/24 -o $External_IFACE -j MASQUERADE
 
-echo "✅ Stateless firewall rules applied successfully."
+echo "Firewall rules applied successfully."
