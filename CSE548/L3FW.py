@@ -1,12 +1,11 @@
 from pox.core import core
 import pox.openflow.libopenflow_01 as of
-from pox.lib.revent import *
+from pox.lib.revent import EventMixin
 from pox.lib.util import dpidToStr
 from pox.lib.addresses import EthAddr, IPAddr
-import pox.lib.packet as pkt
-from pox.lib.packet.arp import arp
-from pox.lib.packet.ipv4 import ipv4
 from pox.lib.packet.ethernet import ethernet
+from pox.lib.packet.arp import arp
+from pox.lib import packet as pkt
 
 log = core.getLogger()
 
@@ -16,112 +15,100 @@ class L3Firewall(EventMixin):
     def __init__(self):
         self.listenTo(core.openflow)
 
-        # Port security tables
-        self.mac_ip_table = {}      # MAC to IP
-        self.mac_port_table = {}    # MAC to switch port
-        self.ip_mac_table = {}      # IP to MAC
+        # Only allow these four MAC addresses (h1 to h4)
+        self.allowed_macs = set([
+            EthAddr("00:00:00:00:00:01"),
+            EthAddr("00:00:00:00:00:02"),
+            EthAddr("00:00:00:00:00:03"),
+            EthAddr("00:00:00:00:00:04"),
+        ])
+
+        # Port table from pseudocode
+        # key is MAC string, value is IP string
+        self.port_table = {}
+
+        # Keep track of MACs we already blocked
+        self.blocked_macs = set()
 
         self.drop_priority = 60000
 
-        log.info("Enhanced L3 Firewall with Port Security Loaded.")
+        log.info("Port security L3 firewall loaded")
 
-    # -------------------------
-    # ARP reply
-    # -------------------------
-    def replyToARP(self, packet, match, event):
-        r = arp()
-        r.opcode = arp.REPLY
-        r.hwdst = match.dl_src
-        r.hwsrc = match.dl_dst
-        r.protosrc = match.nw_dst
-        r.protodst = match.nw_src
+    def _handle_ConnectionUp(self, event):
+        log.info("Switch %s connected", dpidToStr(event.dpid))
 
-        e = ethernet(type=packet.ARP_TYPE, src=r.hwsrc, dst=r.hwdst)
-        e.set_payload(r)
+    def install_drop(self, event, mac):
+        if mac in self.blocked_macs:
+            return
 
-        msg = of.ofp_packet_out()
-        msg.data = e.pack()
-        msg.actions.append(of.ofp_action_output(port=event.port))
-        msg.in_port = event.port
-        event.connection.send(msg)
-
-    # -------------------------
-    # Allow normal traffic
-    # -------------------------
-    def allowOther(self, event):
-        msg = of.ofp_flow_mod()
-        msg.priority = 1
-        msg.actions.append(of.ofp_action_output(port=of.OFPP_NORMAL))
-        event.connection.send(msg)
-
-    # -------------------------
-    # Drop a spoofing MAC
-    # -------------------------
-    def block_mac(self, event, mac):
-        log.warn("Installing DROP rule for MAC %s (spoofing detected)", mac)
+        self.blocked_macs.add(mac)
+        log.warn("Installing drop rule for MAC %s", mac)
 
         msg = of.ofp_flow_mod()
         msg.priority = self.drop_priority
-        msg.match = of.ofp_match(dl_src=EthAddr(mac))
-        # empty actions = drop
+        match = of.ofp_match()
+        match.dl_src = mac
+        msg.match = match
+        # no actions means drop
         event.connection.send(msg)
 
-    # -------------------------
-    # PacketIn Handler
-    # -------------------------
+    def handle_port_security(self, event, mac, ip):
+        # Block anything that is not one of the four lab hosts
+        if mac not in self.allowed_macs:
+            log.warn("Unknown MAC %s seen block it", mac)
+            self.install_drop(event, mac)
+            return False
+
+        mac_s = str(mac)
+        ip_s = str(ip)
+
+        # New MAC (first time)
+        if mac_s not in self.port_table:
+            self.port_table[mac_s] = ip_s
+            log.info("Learned binding MAC %s with IP %s", mac_s, ip_s)
+            return True
+
+        # Seen before with same IP
+        if self.port_table[mac_s] == ip_s:
+            return True
+
+        # Spoofing: same MAC now using different IP
+        expected = self.port_table[mac_s]
+        log.warn("IP spoof from MAC %s using IP %s expected %s",
+                 mac_s, ip_s, expected)
+        self.install_drop(event, mac)
+        return False
+
     def _handle_PacketIn(self, event):
         packet = event.parsed
-        match = of.ofp_match.from_packet(packet)
-        inport = event.port
-
-        # ---------------- ARP ----------------
-        if match.dl_type == packet.ARP_TYPE and packet.payload.opcode == arp.REQUEST:
-            self.replyToARP(packet, match, event)
+        if not packet:
             return
 
-        # ---------------- IP ----------------
-        if match.dl_type == packet.IP_TYPE:
-            src_mac = str(match.dl_src)
-            src_ip = str(match.nw_src)
+        src_mac = packet.src
+        src_ip = None
 
-            # 1. MAC must stay on the same port (MAC spoof or MAC move)
-            if src_mac not in self.mac_port_table:
-                self.mac_port_table[src_mac] = inport
-            elif self.mac_port_table[src_mac] != inport:
-                log.warn("MAC MOVE DETECTED: MAC %s on port %d (expected %d)",
-                         src_mac, inport, self.mac_port_table[src_mac])
-                self.block_mac(event, src_mac)
-                return
+        # ARP packet
+        if packet.type == ethernet.ARP_TYPE and isinstance(packet.payload, arp):
+            src_ip = packet.payload.protosrc
 
-            # 2. MAC must not change its IP (IP spoofing)
-            if src_mac not in self.mac_ip_table:
-                self.mac_ip_table[src_mac] = src_ip
-            elif self.mac_ip_table[src_mac] != src_ip:
-                exp_ip = self.mac_ip_table[src_mac]
-                log.warn("IP SPOOF DETECTED: MAC %s sent %s (expected %s)",
-                         src_mac, src_ip, exp_ip)
-                self.block_mac(event, src_mac)
-                return
+        # IPv4 packet
+        elif packet.type == ethernet.IP_TYPE and isinstance(packet.next, pkt.ipv4):
+            src_ip = packet.next.srcip
 
-            # 3. IP must not change its MAC (MAC spoofing)
-            if src_ip not in self.ip_mac_table:
-                self.ip_mac_table[src_ip] = src_mac
-            elif self.ip_mac_table[src_ip] != src_mac:
-                exp_mac = self.ip_mac_table[src_ip]
-                log.warn("MAC SPOOF DETECTED: IP %s from MAC %s (expected %s)",
-                         src_ip, src_mac, exp_mac)
-                self.block_mac(event, src_mac)
-                return
+        else:
+            # ignore other protocols for this lab
+            return
 
-        # Allow other traffic
-        self.allowOther(event)
+        # Apply port security rules
+        if not self.handle_port_security(event, src_mac, src_ip):
+            # spoof or unknown MAC do not forward this packet
+            return
 
-    # -------------------------
-    # Switch Up
-    # -------------------------
-    def _handle_ConnectionUp(self, event):
-        log.info("Switch %s connected. Enhanced L3 Firewall Active.",
-                 dpidToStr(event.dpid))
+        # Legit packet: just flood it out, do not install NORMAL flow
+        msg = of.ofp_packet_out()
+        msg.data = event.ofp
+        msg.actions.append(of.ofp_action_output(port=of.OFPP_FLOOD))
+        event.connection.send(msg)
 
 
 def launch():
