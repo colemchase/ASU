@@ -1,0 +1,1 @@
+For this level, I reused the same mutation based fuzzer against the level 10 target binary. The fuzzer generated randomized inputs and monitored the program for segmentation faults. It found a 1188 byte crashing input, saved it as crash_0, and I verified it with /challenge/challenge < crash_0, which reproduced the crash and returned the flag.

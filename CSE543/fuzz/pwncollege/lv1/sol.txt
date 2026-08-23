@@ -1,0 +1,3 @@
+For this level, I developed a simple mutation based fuzzer that repeatedly generated modified inputs and supplied them to the target program. The fuzzer monitored the program's exit status and saved any input that caused a crash, indicated by a segmentation fault (SIGSEGV).
+
+After running the fuzzer, it discovered a 198 byte input that reliably crashed the target program. I saved the crashing input to a file and verified it by running /challenge/challenge < crash_0, which reproduced the crash and returned the flag.

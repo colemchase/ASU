@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Coleman_Chase_CSE543_Fuzz Them All Project</title>
+  <style>
+    body {
+      color: #111111;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 12pt;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .title-page {
+      text-align: center;
+      margin-top: 2.25in;
+      margin-bottom: 1.25in;
+    }
+
+    h1 {
+      font-size: 20pt;
+      font-weight: bold;
+      margin: 0 0 0.35in;
+    }
+
+    .meta {
+      font-size: 12pt;
+      margin: 0.08in 0;
+    }
+
+    h2 {
+      border-bottom: 1px solid #888888;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14pt;
+      margin: 0.35in 0 0.12in;
+      padding-bottom: 0.04in;
+    }
+
+    h3 {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12pt;
+      margin: 0.18in 0 0.06in;
+    }
+
+    p {
+      margin: 0 0 0.12in;
+    }
+
+    table {
+      border-collapse: collapse;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5pt;
+      margin: 0.12in 0 0.2in;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #777777;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eeeeee;
+      font-weight: bold;
+    }
+
+    code {
+      font-family: Menlo, Consolas, monospace;
+      font-size: 10pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="title-page">
+    <h1>Fuzz Them All Project</h1>
+    <p class="meta"><strong>Chase Coleman</strong></p>
+    <p class="meta">CSE543</p>
+    <p class="meta">July 5, 2026</p>
+  </div>
+
+  <h2>Submission Overview</h2>
+  <p>This submission includes a Python mutation fuzzer, solved test program notes, and exact crashing inputs for levels 1 through 8 and level 10. Level 9 was attempted but is not included as a solved level because the fuzzer continued running without discovering a verified crashing input despite repeated attempts.</p>
+
+  <h2>Dependencies</h2>
+  <p>The fuzzer is implemented in Python 3 and uses only Python standard library modules: <code>os</code>, <code>random</code>, <code>signal</code>, <code>subprocess</code>, and <code>sys</code>. It expects the target program to be executable at <code>/challenge/prog</code> in the pwn.college environment unless a different target is supplied with the <code>FUZZ_TARGET</code> environment variable or as the first command-line argument.</p>
+
+  <h2>Input Generation Strategy</h2>
+  <p>The fuzzer uses mutation based input generation. It starts from a seed corpus containing empty input, small strings, integer boundary values, format string tokens, path traversal strings, repeated bytes, and selected binary byte values. For each test case, it randomly selects one seed and applies one or more mutations.</p>
+  <p>The mutation operators include bit flips, byte/string insertion, deletion, overwrite, appending interesting values, and splicing random bytes. Generated inputs are capped at 4096 bytes to avoid runaway test cases. The fuzzer executes the target with each generated input through standard input, suppresses normal output, and treats fatal signal exits and common crash exit statuses as crashes. When a crash is detected, it saves the exact input as <code>crash_0</code> for verification and submission.</p>
+
+  <h2>Level Summary</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Level</th>
+        <th>Status</th>
+        <th>Crash Input Size</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Solved</td><td>198 bytes</td><td>Verified with <code>/challenge/challenge &lt; crash_0</code>.</td></tr>
+      <tr><td>2</td><td>Solved</td><td>414 bytes</td><td>Found using repeated characters and numeric edge cases.</td></tr>
+      <tr><td>3</td><td>Solved</td><td>210 bytes</td><td>Found through mutated byte input testing.</td></tr>
+      <tr><td>4</td><td>Solved</td><td>300 bytes</td><td>Found during randomized mutation testing.</td></tr>
+      <tr><td>5</td><td>Solved</td><td>312 bytes</td><td>Saved and verified as <code>crash_0</code>.</td></tr>
+      <tr><td>6</td><td>Solved</td><td>1150 bytes</td><td>Larger crashing input found by the same fuzzer strategy.</td></tr>
+      <tr><td>7</td><td>Solved</td><td>105 bytes</td><td>Generated testcase triggered a segmentation fault.</td></tr>
+      <tr><td>8</td><td>Solved</td><td>186 bytes</td><td>Verified through the challenge wrapper.</td></tr>
+      <tr><td>9</td><td>Attempted, unresolved</td><td>N/A</td><td>Argv-focused fuzzer completed a deterministic pass and reached about 28,000 mutation cases in a 10 minute run without producing <code>crash_0</code>.</td></tr>
+      <tr><td>10</td><td>Solved</td><td>966 bytes</td><td>Found with the same mutation based approach and verified with the challenge wrapper.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Level Notes</h2>
+  <h3>Level 1</h3>
+  <p>Level 1 used the mutation strategy above. The fuzzer found a 198 byte input that reliably crashed the target program. The crash was verified in pwn.college with <code>/challenge/challenge &lt; crash_0</code>.</p>
+
+  <h3>Level 2</h3>
+  <p>Level 2 reused the mutation strategy against the new target binary. The fuzzer generated long inputs containing repeated characters and numeric edge cases, then found a crashing input that reproduced under <code>/challenge/challenge &lt; crash_0</code>.</p>
+
+  <h3>Level 3</h3>
+  <p>Level 3 reused the same fuzzer. It discovered a crashing mutated byte input, saved it as <code>crash_0</code>, and the crash was verified through <code>/challenge/challenge</code>.</p>
+
+  <h3>Level 4</h3>
+  <p>Level 4 reused the mutation based fuzzer and found a crashing input during randomized testing. The saved testcase reproduced the segmentation fault when submitted to <code>/challenge/challenge</code>.</p>
+
+  <h3>Level 5</h3>
+  <p>Level 5 reused the same strategy against the level 5 binary. The fuzzer found a crashing testcase, saved it as <code>crash_0</code>, and verification reproduced the crash.</p>
+
+  <h3>Level 6</h3>
+  <p>Level 6 reused the same fuzzer and found a larger crashing input. The testcase was saved as <code>crash_0</code> and verified with <code>/challenge/challenge &lt; crash_0</code>.</p>
+
+  <h3>Level 7</h3>
+  <p>Level 7 used the mutation based fuzzer on the level 7 target. A generated testcase triggered a segmentation fault and was verified with the challenge wrapper.</p>
+
+  <h3>Level 8</h3>
+  <p>Level 8 reused the same fuzzer and found a crashing input that reproduced with <code>/challenge/challenge &lt; crash_0</code>.</p>
+
+  <h3>Level 9</h3>
+  <p>Level 9 was attempted with an argv-focused mutation strategy adapted for the target. The fuzzer performed a deterministic seed pass and then continued through mutation testing for a 10 minute run, reaching about 28,000 argv cases without producing a <code>crash_0</code> file or a verified crash. Because no crashing input was found despite repeated attempts, I could not produce an exact <code>.crash</code> file for this level.</p>
+
+  <h3>Level 10</h3>
+  <p>Level 10 reused the same mutation based fuzzer. It found a crashing input that reproduced under <code>/challenge/challenge &lt; crash_0</code>.</p>
+</body>
+</html>

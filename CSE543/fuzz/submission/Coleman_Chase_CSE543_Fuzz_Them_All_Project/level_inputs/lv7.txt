@@ -1,0 +1,1 @@
+For this level, I reused my mutation based fuzzer on the level 7 target binary. The fuzzer generated randomized inputs, monitored for crash return codes, and found a 105 byte testcase that triggered a segmentation fault. I saved it as crash_0 and verified it with /challenge/challenge < crash_0, which reproduced the crash and returned the flag.

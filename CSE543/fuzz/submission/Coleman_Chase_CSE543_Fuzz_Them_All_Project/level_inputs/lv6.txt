@@ -1,0 +1,1 @@
+For this level, I reused the same mutation based fuzzer against the level 6 binary. The fuzzer discovered a larger 1153 byte crashing input, saved it as crash_0, and verification with /challenge/challenge < crash_0 reproduced the segmentation fault and returned the flag.

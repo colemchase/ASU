@@ -1,0 +1,24 @@
+Name: Chase Robert Coleman
+ASU ID: 1239783392
+ASURITE: crcole11
+
+Level 1:
+I inspected the webpage source code and discovered that the Verify button called a JavaScript function from verify.js rather than submitting the form normally. By overriding the client side function in the browser console, I forced the form to submit and exposed the hidden authentication logic. The JavaScript contained hardcoded credentials and the flag, demonstrating the insecurity of performing authentication on the client side.
+
+Level 2:
+I found that users.html made requests to users.php to retrieve active users. The endpoint required a Referer header, which I bypassed using curl. I then tested the filter parameter and confirmed command injection with the payload “;id”. After gaining command execution, I listed files in the CGI directory, discovered secretuser.txt, and read its contents to obtain the flag.
+
+Level 3:
+I discovered that petition IDs were generated as the MD5 hash of a user’s email address. After verifying this by submitting my own petition, I determined that Dr. Fish Wang’s publicly available ASU email address could be used to calculate his petition ID. I computed the MD5 hash of his email, queried the petition endpoint with the resulting ID, and retrieved the stored message containing the flag. This was an example of an insecure direct object reference (IDOR).
+
+Level 4:
+I analyzed the application’s file reading functionality and discovered a directory traversal vulnerability. By supplying paths containing “../”, I escaped the intended storage directory and accessed arbitrary files on the server. After enumerating directories, I located a PHP session file and read its contents. The session contained serialized user credentials, including a password field that held the flag.
+
+Level 5:
+I explored the hidden admin functionality and discovered that it relied on cookies for authentication. By forging the required cookies and reading the CGI source code, I learned that admin mode ignored user input and instead searched stored credentials using cookie values. After setting the correct site and password cookies, I searched the credential database and recovered the flag from the protected bank entry.
+
+Level 6:
+I discovered that the application used the User-Agent HTTP header as a filename and automatically appended “.php” before evaluating the file contents. I hosted a malicious PHP file on a local web server and set the User-Agent header to its URL, achieving remote code execution. Using this access, I enumerated files on the server, discovered s3cr37.pwd, and read the file to obtain the flag.
+
+Level 7:
+I identified a blind SQL injection vulnerability in the user registration page. By observing differences in the application’s responses, I created a boolean oracle that revealed whether injected SQL conditions evaluated to true or false. I used this behavior to enumerate the admin account and extract its password one character at a time with automated SQL injection payloads. After recovering the password, I logged in as the admin user and completed the challenge.

@@ -1,0 +1,58 @@
+# macOS / Finder
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Java / JVM / Scala / SBT
+target/
+project/target/
+project/project/
+.bsp/
+.metals/
+.scala-build/
+*.class
+*.log
+
+# Spark / Hadoop local output
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Test and temporary output
+tmp/
+temp/
+.tmp/
+coverage/
+dist/
+build/
+out/
+
+# OS trash
+.Trash-*/
