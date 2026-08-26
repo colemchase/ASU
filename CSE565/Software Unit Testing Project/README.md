@@ -14,6 +14,8 @@ The required algorithm is Heapsort.
 - `test_heap_sort_ai.py` - AI-generated `unittest` test cases.
 - `test_heap_sort_student.py` - student-improved `unittest` test cases.
 - `student_test_results.md` - improved test summary, execution output, screenshot link, and assessment.
+- `Coleman_Chase_CSE 565_UnitTestingProject.pdf` - compiled project report.
+- `UnitTestingProject_Report.tex` - LaTeX source for the compiled project report.
 
 ## Assignment Tasks
 
@@ -85,7 +87,7 @@ The report must contain:
 - `test_heap_sort_student.py` - created
 - `ai_prompts.md` - created
 - `student_test_results.md` - created
-- final PDF report
+- `Coleman_Chase_CSE 565_UnitTestingProject.pdf` - created
 
 ## Notes For Future Codex
 
