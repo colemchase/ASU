@@ -12,6 +12,8 @@ The required algorithm is Heapsort.
 - `heap_sort.py` - Python Heapsort implementation for Task 1.
 - `ai_prompts.md` - prompt, generated unit tests, and execution result for the AI-generated test step.
 - `test_heap_sort_ai.py` - AI-generated `unittest` test cases.
+- `test_heap_sort_student.py` - student-improved `unittest` test cases.
+- `student_test_results.md` - improved test summary, execution output, screenshot link, and assessment.
 
 ## Assignment Tasks
 
@@ -59,7 +61,7 @@ The report must contain:
 - Ask the AI tool to generate tests for the function. Done.
 - Save the exact prompts and responses in `ai_prompts.md`. Done.
 - Run the generated tests and capture output. Done.
-- Add stronger tests for edge cases and mutation-style defects.
+- Add stronger tests for edge cases and mutation-style defects. Done.
 - Write the PDF report after code and tests are stable.
 
 ## Test Cases To Make Sure We Cover
@@ -80,8 +82,9 @@ The report must contain:
 
 - `heap_sort.py` - created
 - `test_heap_sort_ai.py` - created
-- `test_heap_sort_improved.py`
+- `test_heap_sort_student.py` - created
 - `ai_prompts.md` - created
+- `student_test_results.md` - created
 - final PDF report
 
 ## Notes For Future Codex

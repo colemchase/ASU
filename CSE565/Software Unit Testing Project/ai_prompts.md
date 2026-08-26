@@ -58,6 +58,16 @@ if __name__ == "__main__":
 
 ## Execution Result 1
 
+Summary:
+
+- Test framework: Python `unittest`
+- Test file: `test_heap_sort_ai.py`
+- Tests run: 8
+- Result: Passed
+- Screenshot evidence: `screenshots/eight ai tests.png`
+
+![AI-generated unit tests passed](screenshots/eight%20ai%20tests.png)
+
 Command:
 
 ```bash
