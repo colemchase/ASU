@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#Example of test case
+#java -jar CSE565P1.jar Peter 24 Returning Silver Spring Electronics 5
+#ADD TEST CASES BELOW
