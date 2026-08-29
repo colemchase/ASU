@@ -42,13 +42,19 @@ This report presents the results of a structural-based testing assignment. Part 
 
 \subsection{Tool Used and Coverage Type}
 
-For Part 1, a Java test harness was used to execute the test cases for \texttt{VendingMachine.java}. The harness calls the \texttt{dispenseItem} method with selected inputs, compares each actual output to the expected output, and prints the total source lines and coverage achieved by the full test suite.
+For Part 1, JUnit 5 and JaCoCo were used to test and measure coverage for \texttt{VendingMachine.java}. JUnit 5 provides the assertion framework used to execute each test case and compare the actual output from \texttt{dispenseItem} against the expected output. JaCoCo is a Java code coverage tool that instruments the compiled program during test execution and produces coverage reports after the tests finish.
 
-The goal of the test suite is to exercise statement coverage and decision coverage. Statement coverage measures whether executable statements are run by the tests. Decision coverage measures whether control-flow decisions, such as \texttt{if} and \texttt{else if} conditions, are evaluated through their relevant outcomes.
+JaCoCo reports several coverage measurements, including instruction coverage, line coverage, branch coverage, complexity coverage, method coverage, and class coverage. For this assignment, line coverage is used as the practical measurement for statement coverage because it shows whether the executable lines of the program were run. Branch coverage is used as the practical measurement for decision coverage because it shows whether the true and false outcomes of conditional decisions were exercised.
+
+The tests and coverage report were run with Maven using the following command:
+
+\begin{lstlisting}[language=bash,caption={JUnit and JaCoCo Test Command}]
+mvn clean verify
+\end{lstlisting}
 
 \subsection{Test Cases Developed}
 
-The test cases were selected to cover the available products, successful purchases, exact purchases, and insufficient-money cases. Table~\ref{tab:testcases} summarizes the cases.
+The test cases were selected to cover object construction, the available products, successful purchases, exact purchases, and insufficient-money cases. Table~\ref{tab:testcases} summarizes the cases.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{1.6in}p{0.65in}p{0.75in}>{\raggedright\arraybackslash}p{2.8in}}
 \caption{Vending Machine Test Cases}
@@ -61,6 +67,7 @@ Test & Input & Item & Expected Result \\
 Test & Input & Item & Expected Result \\
 \midrule
 \endhead
+Construct vending machine & N/A & N/A & A \texttt{VendingMachine} object is created successfully \\
 Candy with extra money & 30 & candy & Item dispensed and change of 10 returned \\
 Coke exact money & 25 & coke & Item dispensed. \\
 Coffee exact money & 45 & coffee & Item dispensed. \\
@@ -70,15 +77,23 @@ Coffee, not enough for anything & 10 & coffee & Item not dispensed, missing 35 c
 \bottomrule
 \end{longtable}
 
-\subsection{Test Harness Code}
+\subsection{JUnit Test Code}
 
-The following code was written to execute the test cases.
+The following JUnit test code was written to execute the test cases. Each test uses assertions to confirm that the actual output from \texttt{dispenseItem} matches the expected result.
 
-\lstinputlisting[language=Java,caption={Vending Machine Test Harness}]{VendingMachineTestHarness.java}
+\lstinputlisting[language=Java,caption={Vending Machine JUnit Tests}]{src/test/java/VendingMachineTest.java}
 
-\subsection{Test Execution Screenshot}
+\subsection{Test Execution Result}
 
-Figure~\ref{fig:output} shows the test harness output. All seven test cases passed, and the output reports the covered source lines and total coverage.
+The Maven test execution showed that all seven JUnit tests passed with no failures, errors, or skipped tests:
+
+\begin{lstlisting}[caption={JUnit Test Execution Summary}]
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+All coverage checks have been met.
+BUILD SUCCESS
+\end{lstlisting}
+
+Figure~\ref{fig:output} shows the earlier test execution output from the first test run. The final JUnit test suite contains one additional construction test so that JaCoCo records coverage for the implicit constructor line in \texttt{VendingMachine.java}.
 
 \begin{figure}[h]
     \centering
@@ -89,13 +104,21 @@ Figure~\ref{fig:output} shows the test harness output. All seven test cases pass
 
 \subsection{Coverage Discussion}
 
-The test suite was designed to exercise the main control-flow paths in \texttt{dispenseItem}. The first three tests cover the product selection statements for candy, coke, and coffee. The successful-purchase tests cover the \texttt{input > cost} and \texttt{input == cost} branches. The remaining three tests cover the insufficient-money branch and the nested decisions for \texttt{input < 45}, \texttt{input < 25}, and \texttt{input < 20}.
+The test suite was designed to exercise the main control-flow paths in \texttt{dispenseItem}. The construction test covers the class's implicit default constructor, which JaCoCo reports as an executable line. The product tests cover the product selection statements for candy, coke, and coffee. The successful-purchase tests cover the \texttt{input > cost} and \texttt{input == cost} branches. The remaining three tests cover the insufficient-money branch and the nested decisions for \texttt{input < 45}, \texttt{input < 25}, and \texttt{input < 20}.
 
 Together, these tests execute the statements that assign product costs, compute change, assign successful return messages, assign insufficient-money messages, and return the final result. The insufficient-money tests were intentionally chosen at 30, 22, and 10 cents so that the nested decision logic is exercised across its different outcomes.
 
+The JaCoCo report showed 0 missed lines and 24 covered lines, giving 100\% line coverage. It also showed 1 missed branch and 15 covered branches, giving 93.75\% branch coverage. This satisfies the assignment goals of 100\% statement coverage and at least 90\% decision coverage.
+
+The only missed branch is the false outcome of \texttt{if(input < 45)} inside the insufficient-funds block. For the valid product inputs, this false branch is unreachable. The insufficient-funds block only executes when \texttt{input < cost}, and the highest valid product cost is coffee at 45 cents. Therefore, when the insufficient-funds block is reached for coffee, \texttt{input} must already be less than 45.
+
 One implementation issue is that the vending machine code compares strings using \texttt{==}. These tests use Java string literals such as \texttt{"candy"}, \texttt{"coke"}, and \texttt{"coffee"}, so the current implementation behaves as expected because string literals are interned. In production code, \texttt{.equals()} would be safer because \texttt{==} compares object references rather than string contents.
 
-\subsection{Coverage Screenshot}
+\subsection{Coverage Report}
+
+The JaCoCo CSV report generated by the test run is shown below. The report shows that \texttt{VendingMachine} achieved 100\% line coverage and 93.75\% branch coverage.
+
+\lstinputlisting[caption={JaCoCo Coverage Summary}]{target/site/jacoco/jacoco.csv}
 
 \IfFileExists{screenshots/coverage.png}{
     Figure~\ref{fig:coverage} shows the code coverage output achieved by the vending machine test cases.
@@ -107,7 +130,7 @@ One implementation issue is that the vending machine code compares strings using
         \label{fig:coverage}
     \end{figure}
 }{
-    The test harness prints coverage information directly to standard output. Save a screenshot of that output as \texttt{screenshots/coverage.png}; the report will include the screenshot automatically when the PDF is rebuilt.
+    The JaCoCo HTML report is generated at \texttt{target/site/jacoco/index.html}. A screenshot of that page can be saved as \texttt{screenshots/coverage.png}; the report will include the screenshot automatically when the PDF is rebuilt.
 }
 
 \section{Part 2: Static Analysis}
