@@ -6,6 +6,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{float}
+\usepackage{setspace}
 
 \hypersetup{
     colorlinks=true,
@@ -18,29 +19,35 @@
     breaklines=true,
     frame=single,
     columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
     backgroundcolor=\color{gray!8},
     rulecolor=\color{gray!40}
 }
 
-\setlength{\parskip}{6pt}
-\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0.5in}
 
 \title{CSE 565 Software Unit Testing Framework Project}
 \author{Chase Coleman}
 \date{}
 
 \begin{document}
-\maketitle
+\begin{titlepage}
+    \centering
+    \doublespacing
+    \vspace*{1in}
+    {\Large\textbf{CSE 565 Software Unit Testing Framework Project}\par}
+    \vspace{0.5in}
+    Chase Coleman\par
+    Arizona State University\par
+    CSE 565: Software Verification and Validation\par
+    Software Unit Testing Framework Project\par
+    \today\par
+\end{titlepage}
 
-\begin{center}
-\begin{tabular}{ll}
-\textbf{Course:} & CSE 565 Software Verification and Validation \\
-\textbf{Project:} & Software Unit Testing Framework Project \\
-\textbf{Algorithm:} & Heapsort \\
-\textbf{Language:} & Python \\
-\textbf{Unit Testing Framework:} & Python \texttt{unittest} \\
-\end{tabular}
-\end{center}
+\setcounter{page}{2}
+\doublespacing
 
 \section{Development of the Algorithm}
 
@@ -59,15 +66,13 @@ order.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{screenshots/heap_sort.png}
+\includegraphics[width=0.7\linewidth]{screenshots/heap_sort.png}
 \caption{Heapsort implementation shown in the development environment.}
 \end{figure}
 
 \section{Unit Testing Framework and AI Prompt Generation}
 
-I used Python's built-in \texttt{unittest} framework. I chose this framework because it comes with
-Python, requires no additional packages, and supports clear assertions for comparing the expected
-and actual output of the Heapsort algorithm.
+I used Python's built-in \texttt{unittest} framework. The Python documentation describes \texttt{unittest} as a unit testing framework that supports test automation, test fixtures, test cases, and grouping tests into collections (Python Software Foundation, n.d.-a). I chose this framework because it comes with Python, requires no additional packages, and supports clear assertions for comparing the expected and actual output of the Heapsort algorithm.
 
 A generative AI tool was used to create the first version of the unit tests. The prompt explained
 the interface of my implementation and asked the AI to generate tests for normal and edge-case
@@ -88,7 +93,7 @@ mixed positive and negative numbers, and all equal values.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\linewidth]{screenshots/ai_prompt_response.png}
+\includegraphics[width=0.6\linewidth]{screenshots/ai_prompt_response.png}
 \caption{AI prompt and generated response used to create the first test suite.}
 \end{figure}
 
@@ -140,8 +145,7 @@ However, the AI tests were mostly simple example-based tests. They did not check
 original input list stayed unchanged, did not use randomized testing, and did not compare many
 different inputs against a trusted sorting function.
 
-I improved the test suite in \texttt{test\_heap\_sort\_student.py}. The student-improved tests kept
-the original coverage and added stronger cases.
+I improved the test suite in \texttt{test\_heap\_sort\_student.py}. The student-improved tests kept the original coverage and added stronger cases. Python's \texttt{sorted} function was useful as a comparison oracle because it returns a new sorted list from an iterable (Python Software Foundation, n.d.-b).
 
 \begin{itemize}
     \item A test for preserving the original input list
@@ -223,5 +227,11 @@ This project implemented the Heapsort algorithm, generated unit tests using a ge
 executed the AI-generated tests, evaluated their strengths and weaknesses, and improved the test
 suite with additional student-created cases. The AI-generated test suite passed all 8 tests, and
 the student-improved test suite passed all 14 tests.
+
+\section*{References}
+
+\hangindent=0.5in Python Software Foundation. (n.d.-a). \textit{\texttt{unittest} --- Unit testing framework}. Python documentation. Retrieved August 29, 2026, from \url{https://docs.python.org/3/library/unittest.html}
+
+\hangindent=0.5in Python Software Foundation. (n.d.-b). \textit{Sorting techniques}. Python documentation. Retrieved August 29, 2026, from \url{https://docs.python.org/3/howto/sorting.html}
 
 \end{document}
