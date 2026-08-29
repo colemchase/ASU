@@ -1,0 +1,168 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{caption}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    tabsize=4
+}
+
+\title{CSE 565 Structural-Based Testing Project}
+\author{Coleman Chase}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This report presents the results of a structural-based testing assignment. Part 1 uses test cases for the provided \texttt{VendingMachine.java} program and discusses statement and decision coverage. Part 2 uses PMD to perform static source code analysis on \texttt{StaticAnalysis.java} and evaluates the anomalies detected by the tool.
+
+\section{Part 1: Vending Machine Testing}
+
+\subsection{Tool Used and Coverage Type}
+
+For Part 1, a Java test harness was used to execute the test cases for \texttt{VendingMachine.java}. The harness calls the \texttt{dispenseItem} method with selected inputs, compares each actual output to the expected output, and prints the corresponding source lines covered by each test case.
+
+The goal of the test suite is to exercise statement coverage and decision coverage. Statement coverage measures whether executable statements are run by the tests. Decision coverage measures whether control-flow decisions, such as \texttt{if} and \texttt{else if} conditions, are evaluated through their relevant outcomes.
+
+\subsection{Test Cases Developed}
+
+The test cases were selected to cover the available products, successful purchases, exact purchases, and insufficient-money cases. Table~\ref{tab:testcases} summarizes the cases.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{1.6in}p{0.65in}p{0.75in}>{\raggedright\arraybackslash}p{2.8in}}
+\caption{Vending Machine Test Cases}
+\label{tab:testcases}\\
+\toprule
+Test & Input & Item & Expected Result \\
+\midrule
+\endfirsthead
+\toprule
+Test & Input & Item & Expected Result \\
+\midrule
+\endhead
+Candy with extra money & 30 & candy & Item dispensed and change of 10 returned \\
+Coke exact money & 25 & coke & Item dispensed. \\
+Coffee exact money & 45 & coffee & Item dispensed. \\
+Coffee, enough for candy or coke & 30 & coffee & Item not dispensed, missing 15 cents. Can purchase candy or coke. \\
+Coffee, enough for candy only & 22 & coffee & Item not dispensed, missing 23 cents. Can purchase candy. \\
+Coffee, not enough for anything & 10 & coffee & Item not dispensed, missing 35 cents. Cannot purchase item. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Test Harness Code}
+
+The following code was written to execute the test cases.
+
+\lstinputlisting[language=Java,caption={Vending Machine Test Harness}]{VendingMachineTestHarness.java}
+
+\subsection{Test Execution Screenshot}
+
+Figure~\ref{fig:output} shows the test harness output. All seven test cases passed, and the output reports the covered source lines and total coverage.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{screenshots/output.png}
+    \caption{Vending machine test execution output}
+    \label{fig:output}
+\end{figure}
+
+\subsection{Coverage Discussion}
+
+The test suite was designed to exercise the main control-flow paths in \texttt{dispenseItem}. The first three tests cover the product selection statements for candy, coke, and coffee. The successful-purchase tests cover the \texttt{input > cost} and \texttt{input == cost} branches. The remaining three tests cover the insufficient-money branch and the nested decisions for \texttt{input < 45}, \texttt{input < 25}, and \texttt{input < 20}.
+
+Together, these tests execute the statements that assign product costs, compute change, assign successful return messages, assign insufficient-money messages, and return the final result. The insufficient-money tests were intentionally chosen at 30, 22, and 10 cents so that the nested decision logic is exercised across its different outcomes.
+
+One implementation issue is that the vending machine code compares strings using \texttt{==}. These tests use Java string literals such as \texttt{"candy"}, \texttt{"coke"}, and \texttt{"coffee"}, so the current implementation behaves as expected because string literals are interned. In production code, \texttt{.equals()} would be safer because \texttt{==} compares object references rather than string contents.
+
+\subsection{Coverage Screenshot}
+
+\IfFileExists{screenshots/coverage.png}{
+    Figure~\ref{fig:coverage} shows the code coverage output achieved by the vending machine test cases.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.95\textwidth]{screenshots/coverage.png}
+        \caption{Vending machine code coverage result}
+        \label{fig:coverage}
+    \end{figure}
+}{
+    The test harness prints coverage information directly to standard output. Save a screenshot of that output as \texttt{screenshots/coverage.png}; the report will include the screenshot automatically when the PDF is rebuilt.
+}
+
+\section{Part 2: Static Analysis}
+
+\subsection{Tool Used and Analysis Type}
+
+PMD 6.55.0 was used as the static source code analysis tool. PMD analyzes source code without executing the program. It can detect unused variables, questionable object comparisons, style issues, design issues, empty code blocks, duplicated code, overly complex methods, and other maintainability problems.
+
+PMD was downloaded as a standalone distribution and run from the command line. The command used was:
+
+\begin{lstlisting}[language=bash,caption={PMD Command}]
+/tmp/pmd-bin-6.55.0/bin/run.sh pmd -d StaticAnalysis.java -R rulesets/java/quickstart.xml -f text > pmd_static_analysis_report.txt
+\end{lstlisting}
+
+\subsection{PMD Report}
+
+The PMD report generated for \texttt{StaticAnalysis.java} is shown below.
+
+\lstinputlisting[caption={PMD Static Analysis Report}]{pmd_static_analysis_report.txt}
+
+\subsection{Anomalies Detected}
+
+PMD detected unused local variables in the constructor on lines 15 and 16:
+
+\begin{lstlisting}[language=Java]
+int weight = 0;
+String length = "";
+\end{lstlisting}
+
+These variables are assigned values but are never used. This is a data flow anomaly because the variables are defined without any later use.
+
+PMD also detected a string comparison problem on line 24:
+
+\begin{lstlisting}[language=Java]
+if(product == "Electronics")
+\end{lstlisting}
+
+This is risky because Java's \texttt{==} operator compares object references. String contents should normally be compared with \texttt{.equals()}, such as:
+
+\begin{lstlisting}[language=Java]
+if ("Electronics".equals(product))
+\end{lstlisting}
+
+PMD also reported additional style and design findings, including no package declaration, a utility-class recommendation, and missing braces around control statements. These findings are useful, but the unused-variable and string-comparison findings are the most relevant anomalies for this assignment.
+
+\subsection{Assessment of PMD}
+
+PMD was effective for this assignment because it identified the major suspicious patterns in \texttt{StaticAnalysis.java}. The report included the line number, rule name, and a short description for each finding, which made the results easy to interpret.
+
+The main features of PMD include command-line analysis, configurable rulesets, multiple output formats, and Java quality rules for correctness, maintainability, and style. PMD covers anomalies such as unused variables, questionable comparisons, empty statements, unnecessary code, and design problems.
+
+The tool was easy to use because it required only a source file, a ruleset, and an output format. The main limitation is that PMD reports both important anomalies and minor style issues, so the user must interpret which findings are most relevant to the assignment.
+
+\section{Conclusion}
+
+The vending machine test cases exercise the main statement and decision paths in the provided program. The PMD static analysis identified the important anomalies in \texttt{StaticAnalysis.java}, especially unused variables and unsafe string comparison. Together, the two parts demonstrate both dynamic testing through executed test cases and static analysis through source code inspection.
+
+\end{document}

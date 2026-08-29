@@ -1,0 +1,8 @@
+StaticAnalysis.java:4:	NoPackage:	All classes, interfaces, enums and annotations must belong to a named package
+StaticAnalysis.java:5:	UseUtilityClass:	All methods are static.  Consider using a utility class instead. Alternatively, you could add a private constructor or make the class abstract to silence this warning.
+StaticAnalysis.java:15:	UnusedLocalVariable:	Avoid unused local variables such as 'weight'.
+StaticAnalysis.java:16:	UnusedLocalVariable:	Avoid unused local variables such as 'length'.
+StaticAnalysis.java:24:	CompareObjectsWithEquals:	Use equals() to compare object references.
+StaticAnalysis.java:24:	UseEqualsToCompareStrings:	Use equals() to compare strings instead of '==' or '!='
+StaticAnalysis.java:34:	ControlStatementBraces:	This statement should have braces
+StaticAnalysis.java:36:	ControlStatementBraces:	This statement should have braces
