@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Structural/white-box testing project. The folder includes Java programs suitable for static analysis, control-flow analysis, path testing, branch coverage, and unit test design.
+Structural/white-box testing project. The folder includes Java programs suitable for static analysis, control-flow analysis, path testing, branch coverage, and unit test design. All Done
 
 ## Files
 
