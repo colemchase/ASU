@@ -1,0 +1,9 @@
+# Supplied CSVs can be re-extracted from the committed ZIP.
+CGMData.csv
+CGM_patient2.csv
+InsulinData.csv
+Insulin_patient2.csv
+# Local model and grader input/output.
+model.pkl
+test.csv
+Result.csv
