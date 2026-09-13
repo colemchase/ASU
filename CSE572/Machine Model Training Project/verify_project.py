@@ -45,11 +45,52 @@ class ProjectChecks(unittest.TestCase):
         self.assertIsNone(extract_window(broken, self.start, 24))
         self.assertIsNone(extract_window(self.cgm, self.cgm.index[-1], 24))
 
+    def test_no_meal_can_end_at_next_meal(self):
+        insulin = pd.Series([30, 40], index=pd.to_datetime([
+            '2020-01-01 09:00', '2020-01-01 13:00']))
+        samples, labels, _, starts, _ = extract_patient(self.cgm, insulin, 1)
+        negatives = [(x, t) for x, y, t in zip(samples, labels, starts) if y == 0]
+        self.assertEqual(len(negatives), 1)
+        self.assertEqual(negatives[0][1], '2020-01-01T11:00:00')
+        self.assertEqual(len(negatives[0][0]), 24)
+        # A meal even one second before the endpoint invalidates the window.
+        insulin.index = pd.to_datetime(['2020-01-01 09:00:00', '2020-01-01 12:59:59'])
+        _, labels, _, _, _ = extract_patient(self.cgm, insulin, 1)
+        self.assertNotIn(0, labels)
+
     def test_constant_and_variable_length_features(self):
         features = extract_features([np.full(24, 100), np.full(30, 100)])
         self.assertEqual(features.shape, (2, len(FEATURE_NAMES)))
         self.assertTrue(np.isfinite(features).all())
         np.testing.assert_allclose(features[0], features[1])
+
+    def test_meal_windows_require_all_observed_readings(self):
+        meal_time = self.start + pd.Timedelta(minutes=30)
+        insulin = pd.Series([30.0], index=pd.DatetimeIndex([meal_time]))
+        missing_time = self.start + pd.Timedelta(minutes=10)
+        for value in (np.nan, np.inf, 0.0, -1.0, 'absent'):
+            with self.subTest(value=value):
+                cgm = self.cgm.copy()
+                if value == 'absent':
+                    cgm = cgm.drop(missing_time)
+                else:
+                    cgm.loc[missing_time] = value
+                samples, labels, _, _, stats = extract_patient(cgm, insulin, 1)
+                self.assertEqual(samples, [])
+                self.assertEqual(labels, [])
+                self.assertEqual(stats['meal_rejected'], 1)
+                self.assertIsNotNone(extract_window(cgm, self.start, 24))
+        samples, labels, _, _, _ = extract_patient(self.cgm, insulin, 1)
+        self.assertEqual(labels, [1])
+        np.testing.assert_array_equal(samples[0], np.full(30, 100.0))
+
+    def test_clock_drift_cannot_cross_window_end(self):
+        start = self.start + pd.Timedelta(seconds=1)
+        times = list(pd.date_range(self.start + pd.Timedelta(minutes=5), periods=24, freq='5min'))
+        # Nominal last grid point is inside, but its nearest reading is outside.
+        times[-1] += pd.Timedelta(seconds=2)
+        cgm = pd.Series(100.0, index=pd.DatetimeIndex(times))
+        self.assertIsNone(extract_window(cgm, start, 24))
 
     def test_overlap_purge(self):
         samples = [np.ones(30), np.ones(24), np.ones(24), np.ones(24)]

@@ -1,0 +1,132 @@
+{
+  "patients": {
+    "1": {
+      "raw_cgm_rows": 55343,
+      "raw_insulin_rows": 41435,
+      "unparseable_timestamps": 0,
+      "duplicate_cgm_timestamps": 0,
+      "close_meal_gaps": 143,
+      "exact_two_hour_gaps": 0,
+      "extraction": {
+        "carb_events": 747,
+        "eligible_meals": 604,
+        "meal_kept": 460,
+        "meal_rejected": 144,
+        "no_meal_kept": 1176,
+        "no_meal_rejected": 289
+      },
+      "windows_with_interpolation": {
+        "meal": 0,
+        "no_meal": 55
+      },
+      "cross_label_shared_readings": 233,
+      "anchor_delay_seconds": {
+        "min": 0.0,
+        "max": 299.0
+      },
+      "additional_usable_no_meal_windows_without_baseline_buffer": 0,
+      "additional_no_meal_examples": []
+    },
+    "2": {
+      "raw_cgm_rows": 33248,
+      "raw_insulin_rows": 23185,
+      "unparseable_timestamps": 0,
+      "duplicate_cgm_timestamps": 0,
+      "close_meal_gaps": 20,
+      "exact_two_hour_gaps": 0,
+      "extraction": {
+        "carb_events": 424,
+        "eligible_meals": 404,
+        "meal_kept": 297,
+        "meal_rejected": 107,
+        "no_meal_kept": 779,
+        "no_meal_rejected": 820
+      },
+      "windows_with_interpolation": {
+        "meal": 0,
+        "no_meal": 6
+      },
+      "cross_label_shared_readings": 219,
+      "anchor_delay_seconds": {
+        "min": 1.0,
+        "max": 299.0
+      },
+      "additional_usable_no_meal_windows_without_baseline_buffer": 0,
+      "additional_no_meal_examples": []
+    }
+  },
+  "violations": [],
+  "examples": [
+    {
+      "patient": 1,
+      "label": 1,
+      "requested_start": "2017-07-26T12:18:41",
+      "requested_end_exclusive": "2017-07-26T14:48:41",
+      "first_actual_reading": "2017-07-26T12:19:00",
+      "last_actual_reading": "2017-07-26T14:44:00",
+      "missing_values": 0,
+      "columns": 30,
+      "preceding_or_current_meal": "2017-07-26T12:48:41"
+    },
+    {
+      "patient": 1,
+      "label": 0,
+      "requested_start": "2017-07-25T12:39:46",
+      "requested_end_exclusive": "2017-07-25T14:39:46",
+      "first_actual_reading": "2017-07-25T12:43:54",
+      "last_actual_reading": "2017-07-25T14:38:54",
+      "missing_values": 0,
+      "columns": 24,
+      "preceding_or_current_meal": "2017-07-25T10:39:46"
+    },
+    {
+      "patient": 2,
+      "label": 1,
+      "requested_start": "2017-09-05T12:44:52",
+      "requested_end_exclusive": "2017-09-05T15:14:52",
+      "first_actual_reading": "2017-09-05T12:46:21",
+      "last_actual_reading": "2017-09-05T15:11:21",
+      "missing_values": 0,
+      "columns": 30,
+      "preceding_or_current_meal": "2017-09-05T13:14:52"
+    },
+    {
+      "patient": 2,
+      "label": 0,
+      "requested_start": "2017-09-05T15:14:52",
+      "requested_end_exclusive": "2017-09-05T17:14:52",
+      "first_actual_reading": "2017-09-05T15:16:21",
+      "last_actual_reading": "2017-09-05T17:11:23",
+      "missing_values": 0,
+      "columns": 24,
+      "preceding_or_current_meal": "2017-09-05T13:14:52"
+    }
+  ],
+  "validation_source_overlap": [
+    {
+      "fold": 1,
+      "purged_windows": 15,
+      "shared_readings": 0
+    },
+    {
+      "fold": 2,
+      "purged_windows": 11,
+      "shared_readings": 0
+    },
+    {
+      "fold": 3,
+      "purged_windows": 9,
+      "shared_readings": 0
+    },
+    {
+      "fold": 4,
+      "purged_windows": 9,
+      "shared_readings": 0
+    },
+    {
+      "fold": 5,
+      "purged_windows": 10,
+      "shared_readings": 0
+    }
+  ]
+}

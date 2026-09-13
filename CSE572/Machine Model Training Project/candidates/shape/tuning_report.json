@@ -1,0 +1,1926 @@
+{
+  "extraction": {
+    "1": {
+      "carb_events": 747,
+      "eligible_meals": 604,
+      "meal_kept": 460,
+      "meal_rejected": 144,
+      "no_meal_kept": 1176,
+      "no_meal_rejected": 289
+    },
+    "2": {
+      "carb_events": 424,
+      "eligible_meals": 404,
+      "meal_kept": 297,
+      "meal_rejected": 107,
+      "no_meal_kept": 779,
+      "no_meal_rejected": 820
+    }
+  },
+  "feature_names": [
+    "mean",
+    "std",
+    "range",
+    "coefficient_of_variation",
+    "iqr",
+    "relative_peak_rise",
+    "relative_end_change",
+    "peak_position",
+    "trough_position",
+    "linear_slope",
+    "max_rise_rate",
+    "max_fall_rate",
+    "mean_absolute_rate",
+    "rate_std",
+    "curvature_std",
+    "positive_rate_fraction",
+    "first_to_middle",
+    "middle_to_last",
+    "baseline_relative_area",
+    "fft_1",
+    "fft_2",
+    "fft_3",
+    "fft_4",
+    "spectral_entropy",
+    "max_15min_rise",
+    "min_15min_change",
+    "max_30min_rise",
+    "min_30min_change",
+    "max_60min_rise",
+    "min_60min_change",
+    "early_slope",
+    "late_slope",
+    "longest_rise_fraction",
+    "longest_fall_fraction",
+    "lag1_correlation",
+    "rise_after_trough_fraction",
+    "peak_above_end",
+    "early_relative_rise"
+  ],
+  "versions": {
+    "python": "3.14.6",
+    "scipy": "1.17.1",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3",
+    "scikit_learn": "1.9.0"
+  },
+  "cross_validation": {
+    "method": "5-fold StratifiedGroupKFold grouped by patient/week; overlapping windows purged; scaling and crop augmentation inside each fold",
+    "folds": [
+      {
+        "fold": 1,
+        "train_rows": 2153,
+        "validation_rows": 544,
+        "accuracy": 0.8014705882352942,
+        "balanced_accuracy": 0.8280761579994316,
+        "precision": 0.5991189427312775,
+        "recall": 0.8888888888888888,
+        "f1": 0.7157894736842105,
+        "confusion_matrix_labels_0_1": [
+          [
+            300,
+            91
+          ],
+          [
+            17,
+            136
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 3.0,
+            "svc__gamma": 0.01,
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6098037235851037
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5800203825084633
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.600339085602179
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6085218588720677
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.564617903451253
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6036440702276447
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.621260114765732
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5902787131107149
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6206641558282461
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6213300469665509
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5834946928910153
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6098751595829871
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6169809678012587
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5921466712494992
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6160091841761854
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6300939232484056
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5883691916025872
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6159720423223337
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6010558385696206
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5848292126605602
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6029179901011333
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6234897591404543
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5908863668809654
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6159000172120598
+            }
+          ]
+        }
+      },
+      {
+        "fold": 2,
+        "train_rows": 2155,
+        "validation_rows": 546,
+        "accuracy": 0.7857142857142857,
+        "balanced_accuracy": 0.8254966033192881,
+        "precision": 0.559322033898305,
+        "recall": 0.9103448275862069,
+        "f1": 0.6929133858267716,
+        "confusion_matrix_labels_0_1": [
+          [
+            297,
+            104
+          ],
+          [
+            13,
+            132
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 1.0,
+            "svc__gamma": "scale",
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6183131691772266
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5971115860535782
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6093955108934157
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6133925990906449
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5762013444033727
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6138808145968994
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6376648056623613
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6081144696100531
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6244338883247826
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.63108961826266
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5904904208209575
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6244516968340336
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6289980302601603
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6068236016921484
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6253302072802404
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6303598454011636
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.610580947420222
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6238670299303487
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6149447996756828
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6081883675496984
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.615625960493109
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.62608905968815
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6105805516174273
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6231973050971343
+            }
+          ]
+        }
+      },
+      {
+        "fold": 3,
+        "train_rows": 2158,
+        "validation_rows": 545,
+        "accuracy": 0.7981651376146789,
+        "balanced_accuracy": 0.8081820667965679,
+        "precision": 0.5893719806763285,
+        "recall": 0.8299319727891157,
+        "f1": 0.6892655367231638,
+        "confusion_matrix_labels_0_1": [
+          [
+            313,
+            85
+          ],
+          [
+            25,
+            122
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 1.0,
+            "svc__gamma": "scale",
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6282618100477152
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.603531195320763
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6186445178214183
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6304070836725603
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5928694861392797
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6190093414091107
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6345742739702036
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6134665969366551
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6336892164206498
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.633786311503286
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6030168169461433
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6277324106665083
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6273580463196669
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6132141196796369
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6336750227448227
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6317983133796012
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6035521919028624
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6309433994968147
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6214496424027675
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6032232232943503
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6169138149596017
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.629876191607455
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6122715361162946
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6323892072153189
+            }
+          ]
+        }
+      },
+      {
+        "fold": 4,
+        "train_rows": 2166,
+        "validation_rows": 537,
+        "accuracy": 0.7541899441340782,
+        "balanced_accuracy": 0.8160286189006816,
+        "precision": 0.5401459854014599,
+        "recall": 0.961038961038961,
+        "f1": 0.6915887850467289,
+        "confusion_matrix_labels_0_1": [
+          [
+            257,
+            126
+          ],
+          [
+            6,
+            148
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 3.0,
+            "svc__gamma": 0.01,
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.3
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6146405401216405
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5823938473951323
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6057222535012287
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6144573292962261
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5654129498274005
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.604024820911361
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6203263948641498
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5914474296507878
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6214824811333476
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.62011144569718
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5775150723953048
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6121430837441197
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6159912146925849
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5912515074953469
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6192218751709601
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6217527195950163
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5866989766591801
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6248786981686755
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.600266784490064
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.577786682070181
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6101542211045481
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6152314541201981
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5835741051865796
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6214248394869791
+            }
+          ]
+        }
+      },
+      {
+        "fold": 5,
+        "train_rows": 2162,
+        "validation_rows": 540,
+        "accuracy": 0.7925925925925926,
+        "balanced_accuracy": 0.8292796076612101,
+        "precision": 0.5942622950819673,
+        "recall": 0.9177215189873418,
+        "f1": 0.7213930348258707,
+        "confusion_matrix_labels_0_1": [
+          [
+            283,
+            99
+          ],
+          [
+            13,
+            145
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 3.0,
+            "svc__gamma": 0.01,
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6160299251596782
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6018786741079337
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.616112865855472
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6181198984334921
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5993296488409611
+            },
+            {
+              "parameters": {
+                "svc__C": 0.3,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6156640696289407
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6283954942615099
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6144870636338569
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.623015614262549
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6278068386479826
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6102428859746233
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6182640803061735
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6234161465060054
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6129665562452482
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6255604076540355
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.632534606391033
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6126955524844271
+            },
+            {
+              "parameters": {
+                "svc__C": 3.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6227829339250476
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6163182120008531
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6092433332884079
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6148844026763348
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.618891337056751
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6068064714738916
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.3
+                }
+              },
+              "mean_f1": 0.6248685293530482
+            }
+          ]
+        }
+      }
+    ],
+    "out_of_fold": {
+      "accuracy": 0.786504424778761,
+      "balanced_accuracy": 0.8219668431383811,
+      "precision": 0.5749158249158249,
+      "recall": 0.9022457067371202,
+      "f1": 0.7023136246786632,
+      "confusion_matrix_labels_0_1": [
+        [
+          1450,
+          505
+        ],
+        [
+          74,
+          683
+        ]
+      ]
+    },
+    "first_24_points_out_of_fold": {
+      "accuracy": 0.7514749262536873,
+      "balanced_accuracy": 0.7592191548953163,
+      "precision": 0.5379688929551693,
+      "recall": 0.7767503302509907,
+      "f1": 0.6356756756756756,
+      "confusion_matrix_labels_0_1": [
+        [
+          1450,
+          505
+        ],
+        [
+          169,
+          588
+        ]
+      ]
+    },
+    "last_24_points_out_of_fold": {
+      "accuracy": 0.7459439528023599,
+      "balanced_accuracy": 0.7493116251727272,
+      "precision": 0.5315398886827458,
+      "recall": 0.7569352708058125,
+      "f1": 0.6245231607629428,
+      "confusion_matrix_labels_0_1": [
+        [
+          1450,
+          505
+        ],
+        [
+          184,
+          573
+        ]
+      ]
+    }
+  },
+  "patient_holdout": {
+    "1": {
+      "accuracy": 0.6619804400977995,
+      "balanced_accuracy": 0.676863354037267,
+      "precision": 0.43775100401606426,
+      "recall": 0.7108695652173913,
+      "f1": 0.5418392709196355,
+      "confusion_matrix_labels_0_1": [
+        [
+          756,
+          420
+        ],
+        [
+          133,
+          327
+        ]
+      ]
+    },
+    "2": {
+      "accuracy": 0.6700743494423792,
+      "balanced_accuracy": 0.6992280528865895,
+      "precision": 0.443359375,
+      "recall": 0.7643097643097643,
+      "f1": 0.5611866501854141,
+      "confusion_matrix_labels_0_1": [
+        [
+          494,
+          285
+        ],
+        [
+          70,
+          227
+        ]
+      ]
+    }
+  },
+  "model_selection": {
+    "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+    "selected_parameters": {
+      "svc__C": 3.0,
+      "svc__gamma": "scale",
+      "svc__class_weight": {
+        "0": 1.0,
+        "1": 1.3
+      }
+    },
+    "candidates": [
+      {
+        "parameters": {
+          "svc__C": 0.3,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6198602482620087
+      },
+      {
+        "parameters": {
+          "svc__C": 0.3,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6019457804668029
+      },
+      {
+        "parameters": {
+          "svc__C": 0.3,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.611077875967546
+      },
+      {
+        "parameters": {
+          "svc__C": 0.3,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6190749744257581
+      },
+      {
+        "parameters": {
+          "svc__C": 0.3,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.5913919279274553
+      },
+      {
+        "parameters": {
+          "svc__C": 0.3,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.6138988845567513
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.625015810074839
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6054018922377522
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.6272276997754136
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.625135924241453
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6056917649996234
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.6246558253397491
+      },
+      {
+        "parameters": {
+          "svc__C": 3.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6233214284540992
+      },
+      {
+        "parameters": {
+          "svc__C": 3.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6045560777988935
+      },
+      {
+        "parameters": {
+          "svc__C": 3.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.6312478549181896
+      },
+      {
+        "parameters": {
+          "svc__C": 3.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6260272836075781
+      },
+      {
+        "parameters": {
+          "svc__C": 3.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6029391244591235
+      },
+      {
+        "parameters": {
+          "svc__C": 3.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.6294916406995734
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6231197476885214
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6082986919489793
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.6272710355975972
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6267092918983694
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6051734947875178
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.3
+          }
+        },
+        "mean_f1": 0.6286059984022938
+      }
+    ]
+  },
+  "training_rows": 2712,
+  "class_counts": {
+    "no_meal": 1955,
+    "meal": 757
+  }
+}

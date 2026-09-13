@@ -1,0 +1,856 @@
+{
+  "extraction": {
+    "1": {
+      "carb_events": 747,
+      "eligible_meals": 604,
+      "meal_kept": 460,
+      "meal_rejected": 144,
+      "no_meal_kept": 1176,
+      "no_meal_rejected": 289
+    },
+    "2": {
+      "carb_events": 424,
+      "eligible_meals": 404,
+      "meal_kept": 297,
+      "meal_rejected": 107,
+      "no_meal_kept": 779,
+      "no_meal_rejected": 820
+    }
+  },
+  "feature_names": [
+    "mean",
+    "std",
+    "range",
+    "coefficient_of_variation",
+    "iqr",
+    "relative_peak_rise",
+    "relative_end_change",
+    "peak_position",
+    "trough_position",
+    "linear_slope",
+    "max_rise_rate",
+    "max_fall_rate",
+    "mean_absolute_rate",
+    "rate_std",
+    "curvature_std",
+    "positive_rate_fraction",
+    "first_to_middle",
+    "middle_to_last",
+    "baseline_relative_area",
+    "fft_1",
+    "fft_2",
+    "fft_3",
+    "fft_4",
+    "spectral_entropy"
+  ],
+  "versions": {
+    "python": "3.14.6",
+    "scipy": "1.17.1",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3",
+    "scikit_learn": "1.9.0"
+  },
+  "cross_validation": {
+    "method": "5-fold StratifiedGroupKFold grouped by patient/week; overlapping windows purged; scaling and crop augmentation inside each fold",
+    "folds": [
+      {
+        "fold": 1,
+        "train_rows": 2153,
+        "validation_rows": 544,
+        "accuracy": 0.7922794117647058,
+        "balanced_accuracy": 0.8216822961068485,
+        "precision": 0.5862068965517241,
+        "recall": 0.8888888888888888,
+        "f1": 0.7064935064935065,
+        "confusion_matrix_labels_0_1": [
+          [
+            295,
+            96
+          ],
+          [
+            17,
+            136
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 10.0,
+            "svc__gamma": 0.01,
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6184634725510975
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5935439775944078
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6186740542209134
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5839425212753888
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6112702514685643
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.580029749946923
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6238557134644006
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5916957143882967
+            }
+          ]
+        }
+      },
+      {
+        "fold": 2,
+        "train_rows": 2155,
+        "validation_rows": 546,
+        "accuracy": 0.7765567765567766,
+        "balanced_accuracy": 0.8148594032160976,
+        "precision": 0.5485232067510548,
+        "recall": 0.896551724137931,
+        "f1": 0.680628272251309,
+        "confusion_matrix_labels_0_1": [
+          [
+            294,
+            107
+          ],
+          [
+            15,
+            130
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 1.0,
+            "svc__gamma": "scale",
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6251538441423452
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6121044059648513
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6176346982114816
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.594120334142245
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6156251085727532
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5977916427622678
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6181661692751227
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6047561826275668
+            }
+          ]
+        }
+      },
+      {
+        "fold": 3,
+        "train_rows": 2158,
+        "validation_rows": 545,
+        "accuracy": 0.7761467889908257,
+        "balanced_accuracy": 0.7780911359518682,
+        "precision": 0.5609756097560976,
+        "recall": 0.782312925170068,
+        "f1": 0.6534090909090909,
+        "confusion_matrix_labels_0_1": [
+          [
+            308,
+            90
+          ],
+          [
+            32,
+            115
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 1.0,
+            "svc__gamma": "scale",
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6316885511763639
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6111290630320992
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6252428684442122
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6011339048520511
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6151232908846141
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5895451074923612
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6303824950397269
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6145065062213443
+            }
+          ]
+        }
+      },
+      {
+        "fold": 4,
+        "train_rows": 2166,
+        "validation_rows": 537,
+        "accuracy": 0.7690875232774674,
+        "balanced_accuracy": 0.809001051168153,
+        "precision": 0.5604838709677419,
+        "recall": 0.9025974025974026,
+        "f1": 0.6915422885572139,
+        "confusion_matrix_labels_0_1": [
+          [
+            274,
+            109
+          ],
+          [
+            15,
+            139
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 1.0,
+            "svc__gamma": "scale",
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.617620901146833
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5986646526280878
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6132879241502085
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5820648380385517
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6024948830150086
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5796000244509795
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6166761233451638
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5880780549979782
+            }
+          ]
+        }
+      },
+      {
+        "fold": 5,
+        "train_rows": 2162,
+        "validation_rows": 540,
+        "accuracy": 0.7685185185185185,
+        "balanced_accuracy": 0.8011299622241368,
+        "precision": 0.5673469387755102,
+        "recall": 0.879746835443038,
+        "f1": 0.6898263027295285,
+        "confusion_matrix_labels_0_1": [
+          [
+            276,
+            106
+          ],
+          [
+            19,
+            139
+          ]
+        ],
+        "inner_selection": {
+          "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+          "selected_parameters": {
+            "svc__C": 1.0,
+            "svc__gamma": "scale",
+            "svc__class_weight": {
+              "0": 1.0,
+              "1": 1.0
+            }
+          },
+          "candidates": [
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6256801737097503
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.609749688601131
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6182099524068824
+            },
+            {
+              "parameters": {
+                "svc__C": 1.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6064461966892516
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6091036227065925
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": "scale",
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.5912848533211928
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 1.0
+                }
+              },
+              "mean_f1": 0.6241567537208478
+            },
+            {
+              "parameters": {
+                "svc__C": 10.0,
+                "svc__gamma": 0.01,
+                "svc__class_weight": {
+                  "0": 1.0,
+                  "1": 0.7
+                }
+              },
+              "mean_f1": 0.6072918366417807
+            }
+          ]
+        }
+      }
+    ],
+    "out_of_fold": {
+      "accuracy": 0.7765486725663717,
+      "balanced_accuracy": 0.8053475321551284,
+      "precision": 0.5646958011996572,
+      "recall": 0.8705416116248349,
+      "f1": 0.685031185031185,
+      "confusion_matrix_labels_0_1": [
+        [
+          1447,
+          508
+        ],
+        [
+          98,
+          659
+        ]
+      ]
+    },
+    "first_24_points_out_of_fold": {
+      "accuracy": 0.7522123893805309,
+      "balanced_accuracy": 0.761754401375736,
+      "precision": 0.5386012715712988,
+      "recall": 0.7833553500660502,
+      "f1": 0.6383207750269106,
+      "confusion_matrix_labels_0_1": [
+        [
+          1447,
+          508
+        ],
+        [
+          164,
+          593
+        ]
+      ]
+    },
+    "last_24_points_out_of_fold": {
+      "accuracy": 0.745575221238938,
+      "balanced_accuracy": 0.7498653657086292,
+      "precision": 0.530932594644506,
+      "recall": 0.7595772787318362,
+      "f1": 0.625,
+      "confusion_matrix_labels_0_1": [
+        [
+          1447,
+          508
+        ],
+        [
+          182,
+          575
+        ]
+      ]
+    }
+  },
+  "patient_holdout": {
+    "1": {
+      "accuracy": 0.6705378973105135,
+      "balanced_accuracy": 0.6570060632948832,
+      "precision": 0.4396946564885496,
+      "recall": 0.6260869565217392,
+      "f1": 0.5165919282511211,
+      "confusion_matrix_labels_0_1": [
+        [
+          809,
+          367
+        ],
+        [
+          172,
+          288
+        ]
+      ]
+    },
+    "2": {
+      "accuracy": 0.6886617100371747,
+      "balanced_accuracy": 0.6849820412079719,
+      "precision": 0.45681818181818185,
+      "recall": 0.6767676767676768,
+      "f1": 0.5454545454545454,
+      "confusion_matrix_labels_0_1": [
+        [
+          540,
+          239
+        ],
+        [
+          96,
+          201
+        ]
+      ]
+    }
+  },
+  "model_selection": {
+    "method": "3-fold purged patient/week inner CV; mean meal F1 across first/last 24-point views",
+    "selected_parameters": {
+      "svc__C": 1.0,
+      "svc__gamma": "scale",
+      "svc__class_weight": {
+        "0": 1.0,
+        "1": 1.0
+      }
+    },
+    "candidates": [
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6348850173745556
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6135285796469906
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6256795722592089
+      },
+      {
+        "parameters": {
+          "svc__C": 1.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.5970074062325134
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6261463091355813
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": "scale",
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6087504409560386
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 1.0
+          }
+        },
+        "mean_f1": 0.6328721927943035
+      },
+      {
+        "parameters": {
+          "svc__C": 10.0,
+          "svc__gamma": 0.01,
+          "svc__class_weight": {
+            "0": 1.0,
+            "1": 0.7
+          }
+        },
+        "mean_f1": 0.6072391458170168
+      }
+    ]
+  },
+  "training_rows": 2712,
+  "class_counts": {
+    "no_meal": 1955,
+    "meal": 757
+  }
+}

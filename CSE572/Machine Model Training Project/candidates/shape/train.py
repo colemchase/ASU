@@ -173,9 +173,9 @@ def select_pipeline(pipeline, samples, y, groups, starts, patients, indices):
     candidates = [
         {"svc__C": c, "svc__gamma": gamma,
          "svc__class_weight": {0: 1.0, 1: meal_weight}}
-        for c in (1.0, 10.0)
+        for c in (0.3, 1.0, 3.0, 10.0)
         for gamma in ("scale", 0.01)
-        for meal_weight in (1.0, 0.7)
+        for meal_weight in (1.0, 0.7, 1.3)
     ]
     scores = [[] for _ in candidates]
     groups = np.asarray(groups)
