@@ -1,0 +1,8 @@
+# CSE 565 Design of Experiments Project
+# Pairwise (2-way) input model for the specified mobile application.
+
+Type of Phone: iPhone 14, iPhone 13, Galaxy Z, Huawei Mate, Google Pixel 7
+Authentication: Fingerprint, Face recognition, Text Password
+Connectivity: Wireless, 3G, 4G LTE, 5G Edge
+Memory: 128 GB, 256 GB, 512 GB, 1 TB
+Battery Level: <20%, 20-39%, 40-59%, 60-79%, 80-100%
