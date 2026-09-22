@@ -61,36 +61,36 @@ ChatGPT will independently produce a pairwise suite from a structured prompt. Th
 
 ### Phase 1 - Prepare the DOE model
 
-- [ ] Create a PICT model containing exactly the five required factors and allowed levels.
-- [ ] Check spelling, punctuation, and level counts against the assignment specification.
-- [ ] Keep the model under version control / in the project folder for reproducibility.
+- [x] Create a PICT model containing exactly the five required factors and allowed levels.
+- [x] Check spelling, punctuation, and level counts against the assignment specification.
+- [x] Keep the model under version control / in the project folder for reproducibility.
 
 ### Phase 2 - Generate the DOE-tool suite
 
-- [ ] Install or access PICT.
-- [ ] Run PICT with default pairwise strength (2-way).
-- [ ] Save the raw output as a CSV or text file.
-- [ ] Record the command, tool version, model, suite size, and generation time.
+- [x] Install or access PICT.
+- [x] Run PICT with default pairwise strength (2-way).
+- [x] Save the raw output as a CSV or text file.
+- [x] Record the command, tool version, model, suite size, and generation time.
 - [ ] Capture screenshots showing the model/command and generated output.
 
 ### Phase 3 - Generate the AI suite
 
-- [ ] Use a prompt that supplies all factors and levels verbatim.
-- [ ] Require a complete, rectangular CSV/Markdown table with one test case per row.
-- [ ] Require pairwise coverage, only valid values, and no explanatory text inside the data table.
-- [ ] Save the exact prompt and full unedited AI response.
+- [x] Use a prompt that supplies all factors and levels verbatim.
+- [x] Require a complete, rectangular CSV/Markdown table with one test case per row.
+- [x] Require pairwise coverage, only valid values, and no explanatory text inside the data table.
+- [x] Save the exact prompt and full unedited AI response.
 - [ ] Capture screenshots of both the prompt and the output.
 
 ### Phase 4 - Verify both suites independently
 
 Use a verification script rather than relying on either tool's claim of coverage.
 
-- [ ] Confirm every row has five factor values.
-- [ ] Confirm every value belongs to its factor's permitted level set.
-- [ ] Count test cases and identify duplicate rows.
-- [ ] Enumerate all 175 required pairs.
-- [ ] Report coverage as `covered / 175` and list any missing pairs.
-- [ ] Confirm both suites achieve 175/175 pair coverage before using them in the report.
+- [x] Confirm every row has five factor values.
+- [x] Confirm every value belongs to its factor's permitted level set.
+- [x] Count test cases and identify duplicate rows.
+- [x] Enumerate all 175 required pairs.
+- [x] Report coverage as `covered / 175` and list any missing pairs.
+- [x] Confirm both suites achieve 175/175 pair coverage before using them in the report.
 
 ### Phase 5 - Analyze and compare
 

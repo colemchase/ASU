@@ -117,12 +117,28 @@ ChatGPT will be used to independently generate a second pairwise test suite. The
 \subsection{Prompt Used}
 
 \begin{lstlisting}[style=code]
-% TODO: Paste the exact ChatGPT prompt here after running it.
+Create a pairwise (2-way) test suite for a mobile application. Return a
+complete tab-separated table with exactly these five columns: Type of Phone,
+Authentication, Connectivity, Memory, and Battery Level.
+
+Use only these levels:
+- Type of Phone: iPhone 14, iPhone 13, Galaxy Z, Huawei Mate, Google Pixel 7
+- Authentication: Fingerprint, Face recognition, Text Password
+- Connectivity: Wireless, 3G, 4G LTE, 5G Edge
+- Memory: 128 GB, 256 GB, 512 GB, 1 TB
+- Battery Level: <20%, 20-39%, 40-59%, 60-79%, 80-100%
+
+Every pair of values from every two different columns must occur in at least
+one row. Do not use values outside these lists. Do not include duplicate rows.
+After the table, state the number of test cases generated.
 \end{lstlisting}
 
 \subsection{Generated Test Cases and Evidence}
 
-% TODO: Describe the unedited AI response, save it in a project file, and insert its table or selected rows.
+ChatGPT generated 27 test cases in tab-separated format. The exact prompt and
+unedited response are preserved in \texttt{chatgpt\_prompt\_and\_response.md},
+and the table used for validation is stored in
+\texttt{chatgpt\_pairwise\_test\_cases.tsv}.
 
 \evidenceplaceholder{Replace with a screenshot showing the exact ChatGPT prompt and generated test-case table.}
 
@@ -137,19 +153,19 @@ Both suites will be independently validated rather than relying only on the gene
 \toprule
 \textbf{Measure} & \textbf{PICT suite} & \textbf{ChatGPT suite} \\
 \midrule
-Test cases generated & 26 & TODO \\
-Invalid values & 0 & TODO \\
-Duplicate rows & 0 & TODO \\
+Test cases generated & 26 & 27 \\
+Invalid values & 0 & 0 \\
+Duplicate rows & 0 & 0 \\
 Required value-pairs & 175 & 175 \\
-Pairs covered & 175/175 & TODO \\
-Pairwise coverage & 100\% & TODO \\
+Pairs covered & 175/175 & 175/175 \\
+Pairwise coverage & 100\% & 100\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The PICT suite has already been checked with \texttt{verify\_pairwise\_coverage.py}. It contains 26 valid, non-duplicate test cases and covers all 175 required value-pairs.
+Both suites were checked with \texttt{verify\_pairwise\_coverage.py}. The PICT suite contains 26 valid, non-duplicate test cases and covers all 175 required value-pairs. The ChatGPT suite contains 27 valid, non-duplicate test cases and also covers all 175 required value-pairs. The PICT suite is one test case smaller and is reproducible from the same model and command. The ChatGPT result achieved the same coverage, but required a precise prompt and independent verification.
 
-% TODO: After validating the AI suite, discuss validity, coverage, suite size, reproducibility, and manual cleanup required.
+The two suites therefore satisfy the pairwise DOE requirement. Their results show that generative AI can produce a valid pairwise suite for this small model, but its stated coverage should not be accepted without validation. A deterministic DOE tool provides a more repeatable generation workflow, while an AI tool can assist with quickly creating and explaining a candidate suite.
 
 \evidenceplaceholder{Replace with a screenshot of the independent verification output for both suites.}
 
