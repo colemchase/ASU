@@ -104,7 +104,11 @@ pict pict_model.txt
 
 PICT reported 175 required value-pairs and generated 26 test cases. The raw output is stored in \texttt{pict\_pairwise\_test\_cases.tsv}.
 
-\evidenceplaceholder{Replace with a screenshot of the PICT command, model, and generated output.}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{screenshots/pictcommandoutput.png}
+\caption{PICT command execution and the generated pairwise test cases.}
+\end{figure}
 
 % TODO: Add a concise explanation of the generated suite and insert selected rows or the full table if required.
 
@@ -112,7 +116,7 @@ PICT reported 175 required value-pairs and generated 26 test cases. The raw outp
 
 \subsection{Generative AI Tool Selection}
 
-ChatGPT will be used to independently generate a second pairwise test suite. The prompt will provide the same factor/level specification used by PICT and will request a complete table containing only allowed values.
+ChatGPT (OpenAI, 2026) was used to independently generate a second pairwise test suite. The prompt provided the same factor/level specification used by PICT and requested a complete table containing only allowed values.
 
 \subsection{Prompt Used}
 
@@ -135,25 +139,35 @@ After the table, state the number of test cases generated.
 
 \subsection{Generated Test Cases and Evidence}
 
-ChatGPT generated 27 test cases in tab-separated format. The exact prompt and
-unedited response are preserved in \texttt{chatgpt\_prompt\_and\_response.md},
-and the table used for validation is stored in
-\texttt{chatgpt\_pairwise\_test\_cases.tsv}.
+ChatGPT generated 25 test cases in tab-separated format. The exact prompt and
+the complete, unedited response were preserved as project evidence. The
+generated table was then saved without modification and passed to the
+independent pairwise-coverage verification script.
 
-\evidenceplaceholder{Replace with a screenshot showing the exact ChatGPT prompt and generated test-case table.}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{screenshots/chatgptoutput.png}
+\caption{ChatGPT prompt and the generated 25-test-case pairwise suite.}
+\end{figure}
 
 \section{Task 3: Assessment of the Two Test Suites}
 
 Both suites will be independently validated rather than relying only on the generation tool's coverage claim. The verification checks that every test case is complete, every value is permitted by the specification, duplicate rows are identified, and every required pair is covered.
 
+\subsection{Independent Pairwise-Coverage Verification Script}
+
+The following Python script independently validates both generated suites. It enumerates the 175 required value-pairs from the specification and reports invalid values, duplicate test cases, and any missing pairs.
+
+\lstinputlisting[style=code,language=Python]{verify_pairwise_coverage.py}
+
 \begin{table}[H]
 \centering
-\caption{Pairwise-suite comparison. Complete this table after generating and verifying the AI suite.}
+\caption{Independent comparison of the PICT and ChatGPT pairwise test suites.}
 \begin{tabular}{p{2.5in}cc}
 \toprule
 \textbf{Measure} & \textbf{PICT suite} & \textbf{ChatGPT suite} \\
 \midrule
-Test cases generated & 26 & 27 \\
+Test cases generated & 26 & 25 \\
 Invalid values & 0 & 0 \\
 Duplicate rows & 0 & 0 \\
 Required value-pairs & 175 & 175 \\
@@ -163,48 +177,80 @@ Pairwise coverage & 100\% & 100\% \\
 \end{tabular}
 \end{table}
 
-Both suites were checked with \texttt{verify\_pairwise\_coverage.py}. The PICT suite contains 26 valid, non-duplicate test cases and covers all 175 required value-pairs. The ChatGPT suite contains 27 valid, non-duplicate test cases and also covers all 175 required value-pairs. The PICT suite is one test case smaller and is reproducible from the same model and command. The ChatGPT result achieved the same coverage, but required a precise prompt and independent verification.
+\subsection{Assessment of the Test Cases Developed by the DOE Tool}
 
-The two suites therefore satisfy the pairwise DOE requirement. Their results show that generative AI can produce a valid pairwise suite for this small model, but its stated coverage should not be accepted without validation. A deterministic DOE tool provides a more repeatable generation workflow, while an AI tool can assist with quickly creating and explaining a candidate suite.
+The PICT suite is valid for the provided specification. Independent verification found 26 complete test cases, zero invalid values, zero duplicate rows, and coverage of all 175 required value-pairs. The suite also includes every allowed value for every factor, because each value participates in the required pairs. These results demonstrate that the PICT output aligns with the pairwise DOE technique: every interaction between two factor levels is exercised at least once without testing all 1,200 exhaustive combinations.
 
-\evidenceplaceholder{Replace with a screenshot of the independent verification output for both suites.}
+The main strength of the PICT suite is its reproducibility. The same factor model and command provide a clear, repeatable basis for regenerating the suite if requirements change. Its 26 rows are not the theoretical minimum of 25, but the additional row is a small tradeoff for a deterministic default generation process. The suite remains efficient and suitable as a baseline for testing the application.
+
+\subsection{Assessment of the Test Cases Developed by the AI Tool}
+
+The ChatGPT suite is also valid for the provided specification. Independent verification found 25 complete test cases, zero invalid values, zero duplicate rows, and coverage of all 175 required value-pairs. Since the phone-type factor and battery-level factor have $5 \times 5 = 25$ distinct pairs, 25 is the theoretical minimum possible number of rows for a complete pairwise suite. The ChatGPT response therefore achieved the minimum suite size while still following the pairwise DOE guideline.
+
+The AI-generated suite was only acceptable after independent validation. A carefully constrained prompt was necessary to obtain a usable tab-separated table, and the result could have contained invalid values, missing pairs, or formatting problems. Unlike PICT, an AI response may vary across runs even when given the same request. Therefore, the 25-row result is efficient, but a tester should preserve the prompt and output and always validate the suite against the original factor model before relying on it.
+
+\subsection{Comparison of the Two Suites}
+
+Both suites satisfy the pairwise DOE requirement. The ChatGPT suite is one row smaller in the documented runs, while PICT is more directly reproducible from the same model and command. These results show that generative AI can produce a valid pairwise suite for this small model, but its stated coverage should not be accepted without validation. A deterministic DOE tool provides a more repeatable generation workflow, while an AI tool can assist with quickly creating and explaining a candidate suite.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{screenshots/pairwise_verification.png}
+\caption{Independent pairwise-coverage verification for the PICT and ChatGPT test suites.}
+\end{figure}
 
 \section{Task 4: Assessment of the DOE Tool}
 
 \subsection{Features and Functionality}
 
-% TODO: Explain PICT's text-based model, pairwise generation, supported coverage strength, and command-line output.
+Microsoft PICT is a command-line Pairwise Independent Combinatorial Testing tool. Its main feature is a compact text model in which each line names one input factor and lists its allowed values. After receiving the model, PICT produces a set of test cases that covers every pair of values across two factors. PICT also supports higher interaction strengths, but I used its default two-way setting because the assignment specifically requires pairwise DOE testing.
+
+For this project, the model listed five independent factors: phone type, authentication, connectivity, memory, and battery level. PICT generated the result as a tab-separated table, which made it straightforward to save and inspect. The tool also reported the number of required pairs, the number of generated tests, and its generation time.
 
 \subsection{Scope Covered by the Tool}
 
-% TODO: Explain which specification inputs PICT modeled and any assumptions or constraints not represented.
+PICT covered every level in the supplied application specification. It modeled all 5 phone types, 3 authentication methods, 4 connectivity options, 4 memory options, and 5 battery-level ranges. Because the assignment did not identify any invalid combinations or business rules, the model treated all factor values as independent. If the real application imposed restrictions---for example, if a particular authentication method were unavailable on a certain phone---those restrictions would need to be added to the model before generating tests.
+
+The tool is well suited to the combinatorial portion of test design, but it does not determine expected application behavior or decide whether a test has passed. A tester must still define the expected outcome for each generated input combination and execute the tests against the application.
 
 \subsection{Performance}
 
-% TODO: Discuss the 26-case output, coverage result, generation time, and reduction from 1,200 exhaustive combinations.
+PICT performed very efficiently for this model. The full input space contains 1,200 possible combinations, but PICT generated only 26 test cases in less than one second. The generated suite covered all 175 required value-pairs. Independent validation also confirmed that the suite had no invalid values and no duplicate rows.
+
+This reduction from 1,200 exhaustive cases to 26 pairwise cases makes the test effort far more practical while maintaining two-way interaction coverage. The result demonstrates the main advantage of DOE tools: they create a compact, systematic suite that would be difficult and time-consuming to construct manually.
 
 \subsection{Ease of Use}
 
-% TODO: Describe installation, model syntax, command-line execution, readability of output, and reproducibility.
+PICT was easy to use after installation through Homebrew. The input format was readable because it used one factor per line with comma-separated levels. Generating the suite required a single command, \texttt{pict pict\_model.txt}. The output was also easy to save as a tab-separated file for independent validation.
+
+The strongest usability benefit was reproducibility. Running the same command on the same model produces a documented baseline that can be regenerated whenever the requirements change. The main limitation is that PICT is a command-line tool, so a user must be comfortable creating a text model and working in a terminal.
 
 \section{Task 5: Assessment of the Generative AI Tool}
 
 \subsection{Prompting and Result-Processing Experience}
 
-% TODO: Describe how the prompt was designed, whether revisions were required, and how the output was converted into a verifiable table.
+ChatGPT was used to generate a second pairwise suite from the same factor/level specification. The prompt had to be explicit: it named the required columns, listed every allowed value, required pairwise coverage, prohibited invalid values and duplicates, and requested a tab-separated table. This level of detail was important because a vague prompt could produce an explanation instead of a usable test-case table or could introduce values that were not part of the specification.
+
+ChatGPT returned 25 test cases after 32 seconds. I saved the prompt and response exactly as generated, copied the table into a tab-separated file, and then processed it with the independent verification script. The verification was necessary because an AI statement that a suite is pairwise does not prove that all required pairs are actually present. In this instance, the AI result was valid: it contained no duplicate rows, used only permitted values, and covered all 175 required pairs.
 
 \subsection{Significance of Generative AI for DOE Testing}
 
-% TODO: Discuss the benefits of AI assistance and its limitations, especially the need for independent validity and coverage checks.
+Generative AI can be useful in DOE testing because it can quickly convert a natural-language specification into a candidate test suite, explain the reasoning behind a testing approach, and help a tester draft documentation. For this project, ChatGPT produced a valid 25-case suite, which was one case smaller than the 26-case suite generated by PICT in its default run while achieving the same verified pairwise coverage.
+
+The 25-case result needs to be interpreted carefully. It is the theoretical lower bound for this model because the phone-type factor and battery-level factor have $5 \times 5 = 25$ distinct value-pairs. Every row can cover only one phone/battery pair, so a complete pairwise suite cannot have fewer than 25 rows. ChatGPT reached that lower bound in this run, but this does not show that AI is inherently better than the DOE tool. PICT uses a mathematical heuristic to quickly build a compact, valid suite rather than proving that every default run is globally minimal. When PICT's randomized search option was run with seed 7, it also generated a 25-case suite. Therefore, the one-case difference reflects the search path used by the default PICT run, not a coverage advantage for ChatGPT.
+
+However, AI should not replace a dedicated DOE tool or independent review. Its output may vary with the prompt, may be difficult to reproduce exactly, and can appear correct even when it contains missing pairs or invalid values. A deterministic DOE tool such as PICT provides a clearer repeatable process, while AI is best used as an assistant for drafting, explaining, and proposing candidate tests. The most reliable workflow is to use AI output only after validating it against the original factor model.
 
 \section{Conclusion}
 
-% TODO: Summarize the DOE approach, the results of both verified suites, the comparison, and the recommended tool for this task.
+This project applied pairwise DOE testing to a five-factor mobile-application specification. PICT generated 26 test cases, while ChatGPT generated 25 test cases. Independent verification confirmed that both suites used only valid values, had no duplicates, and achieved complete 175/175 pairwise coverage.
+
+The two approaches were both effective for this small model. ChatGPT produced the smaller suite, but its result depended on a carefully written prompt and required independent validation. PICT produced a slightly larger suite but offered a clear, repeatable model-driven workflow. For this type of task, PICT is the better primary tool because it is deterministic and purpose-built for combinatorial testing; ChatGPT is a useful supplementary tool for generating candidate suites and supporting test documentation.
 
 \section*{References}
 
 \hangindent=0.5in Microsoft. (n.d.). \textit{PICT: Pairwise Independent Combinatorial Testing}. GitHub. Retrieved September 21, 2026, from \url{https://github.com/microsoft/pict}
 
-% TODO: Add any course materials or other sources actually cited in the report.
+\hangindent=0.5in OpenAI. (2026). \textit{ChatGPT} [Large language model]. \url{https://chatgpt.com/}
 
 \end{document}

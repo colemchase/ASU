@@ -96,30 +96,30 @@ Use a verification script rather than relying on either tool's claim of coverage
 
 Compare the two suites on:
 
-- [ ] Pairwise coverage and validity.
-- [ ] Number of test cases (smaller is preferable only when full coverage is retained).
-- [ ] Duplicate or invalid rows.
-- [ ] Reproducibility and determinism.
-- [ ] Time and effort required.
-- [ ] Transparency of the generation method.
-- [ ] Ease of modifying the model when requirements change.
-- [ ] Prompt-engineering and manual cleanup needed for the AI result.
+- [x] Pairwise coverage and validity.
+- [x] Number of test cases (smaller is preferable only when full coverage is retained).
+- [x] Duplicate or invalid rows.
+- [x] Reproducibility and determinism.
+- [x] Time and effort required.
+- [x] Transparency of the generation method.
+- [x] Ease of modifying the model when requirements change.
+- [x] Prompt-engineering and manual cleanup needed for the AI result.
 
 ### Phase 6 - Write required tool assessments
 
 #### PICT assessment
 
-- [ ] Features and functionality.
-- [ ] Scope covered by the tool.
-- [ ] Performance and generated-suite quality.
-- [ ] Ease of use, setup, model syntax, and reproducibility.
+- [x] Features and functionality.
+- [x] Scope covered by the tool.
+- [x] Performance and generated-suite quality.
+- [x] Ease of use, setup, model syntax, and reproducibility.
 
 #### ChatGPT assessment
 
-- [ ] Experience writing prompts and processing results.
-- [ ] Accuracy, clarity, and any manual validation needed.
-- [ ] Significance and limitations of generative AI for DOE testing.
-- [ ] Comparison with a deterministic DOE tool.
+- [x] Experience writing prompts and processing results.
+- [x] Accuracy, clarity, and any manual validation needed.
+- [x] Significance and limitations of generative AI for DOE testing.
+- [x] Comparison with a deterministic DOE tool.
 
 ### Phase 7 - Build and quality-check the final report
 

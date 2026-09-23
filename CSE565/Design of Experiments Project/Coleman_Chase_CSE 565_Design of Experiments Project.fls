@@ -148,12 +148,35 @@ INPUT ./pict_model.txt
 INPUT ./pict_model.txt
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
 INPUT pict_model.txt
+INPUT ./screenshots/pictcommandoutput.png
+INPUT ./screenshots/pictcommandoutput.png
+INPUT ./screenshots/pictcommandoutput.png
+INPUT ./screenshots/pictcommandoutput.png
+INPUT ./screenshots/pictcommandoutput.png
+INPUT ./screenshots/chatgptoutput.png
+INPUT ./screenshots/chatgptoutput.png
+INPUT ./screenshots/chatgptoutput.png
+INPUT ./screenshots/chatgptoutput.png
+INPUT ./screenshots/chatgptoutput.png
+INPUT /usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT ./verify_pairwise_coverage.py
+INPUT ./verify_pairwise_coverage.py
+INPUT verify_pairwise_coverage.py
+INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmitt10.tfm
+INPUT ./screenshots/pairwise_verification.png
+INPUT ./screenshots/pairwise_verification.png
+INPUT ./screenshots/pairwise_verification.png
+INPUT ./screenshots/pairwise_verification.png
+INPUT ./screenshots/pairwise_verification.png
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
 INPUT Coleman_Chase_CSE 565_Design of Experiments Project.aux
 INPUT ./Coleman_Chase_CSE 565_Design of Experiments Project.out
 INPUT ./Coleman_Chase_CSE 565_Design of Experiments Project.out
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb
 INPUT /usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb

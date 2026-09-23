@@ -1,7 +1,8 @@
 # Fdb version 4
-["pdflatex"] 1790121234.46232 "Coleman_Chase_CSE 565_Design of Experiments Project.tex" "Coleman_Chase_CSE 565_Design of Experiments Project.pdf" "Coleman_Chase_CSE 565_Design of Experiments Project" 1790121234.7715 0
+["pdflatex"] 1790124711.74081 "Coleman_Chase_CSE 565_Design of Experiments Project.tex" "Coleman_Chase_CSE 565_Design of Experiments Project.pdf" "Coleman_Chase_CSE 565_Design of Experiments Project" 1790124712.36508 0
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
+  "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmitt10.tfm" 1136768653 768 2297ad2ac26f37e67f756dad27c77d68 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm" 1136768653 1528 abec98dbc43e172678c11b3b9031252a ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm" 1136768653 1512 f21f83efb36853c0b70002322c1ab3ad ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmmi8.tfm" 1136768653 1520 eccf95517727cb11801f4f1aee3a21b4 ""
@@ -16,6 +17,7 @@
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm" 1136768653 768 1321e9409b4137d6fb428ac9dc956269 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb" 1248133631 34811 78b52f49e893bcba91bd7581cdc144c0 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1248133631 32080 340ef9bf63678554ee606688e7b5339d ""
+  "/usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb" 1248133631 26057 fad158094905eaf20f4ae3782af0c45c ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1248133631 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
@@ -63,6 +65,7 @@
   "/usr/local/texlive/2026basic/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg" 1279039959 678 4792914a8f45be57bb98413425e4c7af ""
   "/usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/listings.cfg" 1763671178 1865 73df61e45e2dfdc239ef37ab16d87d6a ""
   "/usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/listings.sty" 1763671178 81627 6a9c17f89f356724d1c9813b7025f0c1 ""
+  "/usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/lstlang1.sty" 1763671178 206518 095934a0019dcba14af528744bf9b295 ""
   "/usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/lstmisc.sty" 1763671178 77105 002e983b638eadbf04e580642335f689 ""
   "/usr/local/texlive/2026basic/texmf-dist/tex/latex/listings/lstpatch.sty" 1710360531 353 9024412f43e92cd5b21fe9ded82d0610 ""
   "/usr/local/texlive/2026basic/texmf-dist/tex/latex/refcount/refcount.sty" 1576624809 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
@@ -75,10 +78,14 @@
   "/usr/local/texlive/2026basic/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1784604718 79187 e3f5941707347d15c1721f52279213a2 ""
   "/usr/local/texlive/2026basic/texmf-var/web2c/pdftex/pdflatex.fmt" 1772405612 2966183 588a2f29d0aaf280e3a142a37c2dd621 ""
   "/usr/local/texlive/2026basic/texmf.cnf" 1772405582 628 bbc09d6d38872d53c11bb48dc9b14e88 ""
-  "Coleman_Chase_CSE 565_Design of Experiments Project.aux" 1790121234.73523 3163 a2f7cc6a5e3ea8ba233c2751ca0fcbdf "pdflatex"
-  "Coleman_Chase_CSE 565_Design of Experiments Project.out" 1790121234.73578 4082 9b5cd7cce045dd9a4cae6c1c80553c8b "pdflatex"
-  "Coleman_Chase_CSE 565_Design of Experiments Project.tex" 1790121005.33982 8424 f46a474a0edb03f92c8d847b7c785aa2 ""
+  "Coleman_Chase_CSE 565_Design of Experiments Project.aux" 1790124712.32323 4444 ab8b04340abe1a0b8df67268504ee168 "pdflatex"
+  "Coleman_Chase_CSE 565_Design of Experiments Project.out" 1790124712.32393 5309 9772d9ae1325f42f95152243d4a52c15 "pdflatex"
+  "Coleman_Chase_CSE 565_Design of Experiments Project.tex" 1790124690.10626 16430 b3747d4842696a1ada702013e20146ee ""
   "pict_model.txt" 1790032060.9539 380 d8020a57650794c5ff4bdbc5def7e679 ""
+  "screenshots/chatgptoutput.png" 1790121826.91859 350940 8bd37cb65977499a4338b27fec514e65 ""
+  "screenshots/pairwise_verification.png" 1790122343.8299 23394 cf2f246c166204a5fbdc3d541213af9c ""
+  "screenshots/pictcommandoutput.png" 1790121399.7001 73782 0687937136a9a7fd17d534f582786acd ""
+  "verify_pairwise_coverage.py" 1790032091.93249 2702 a72401991316cfe372ff18a9b02ec126 ""
   (generated)
   "Coleman_Chase_CSE 565_Design of Experiments Project.aux"
   "Coleman_Chase_CSE 565_Design of Experiments Project.log"
