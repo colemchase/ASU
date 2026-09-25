@@ -34,14 +34,31 @@ The CSVs use the same Medtronic-style export format as the earlier CSE 572 proje
 - `Alarm`
 - `Suspend`
 
-## What To Do Next
+## Current Implementation
 
-- Read the overview PDF for exact feature extraction rules, clustering algorithms, validation metrics, and required output format.
-- Extract the ZIP before implementation.
-- Expect to handle missing glucose values and align insulin events with CGM time windows.
-- Likely validation metrics may include SSE, entropy, purity, or similar cluster-quality measures, but verify this in the PDF.
+`main.py` prefers Ed's `CGMData.csv` and `InsulinData.csv` files, and falls
+back to the supplied ZIP only for local use. It:
 
-## Notes For Future Codex
+1. selects carbohydrate meal events that have no following meal within two hours;
+2. aligns 30 five-minute CGM readings beginning 30 minutes before each meal;
+3. transforms each complete 30-point meal window into the same 24 engineered
+   features used by the Project 2 implementation, then standardizes them;
+4. derives the required number of 20-gram bins from the full insulin export,
+   then trains KMeans using that number;
+5. grid-searches DBSCAN's `eps` and `min_samples`, retaining only settings
+   that form that same number of non-noise clusters and preferring fewer noise
+   points; and
+6. writes the required headerless six-value `Result.csv`, plus an inspectable `dbscan_grid.csv`.
 
-- No implementation files are present yet.
-- Local PDF text extraction tools were not available when this README was created, so exact rubric details must be checked in the PDF.
+Run it after installing the pinned packages:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python main.py
+```
+
+This implementation is self-contained: it retains Project 2's 24-feature
+schema in `main.py` so the assignment can be run without importing another
+project directory. The carbohydrate amount for each meal is held back from
+clustering and used only to form ground-truth bins for entropy and purity.
