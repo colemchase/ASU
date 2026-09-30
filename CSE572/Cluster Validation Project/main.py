@@ -88,37 +88,47 @@ def meal_events(insulin: pd.DataFrame) -> pd.DataFrame:
     # be attributed to a single amount of carbohydrates.
     next_meal = meals["timestamp"].shift(-1)
     return meals.loc[
-        next_meal.isna() | ((next_meal - meals["timestamp"]) >= pd.Timedelta(hours=2)),
+        next_meal.isna() | ((next_meal - meals["timestamp"]) > pd.Timedelta(hours=2)),
         ["timestamp", "carbs"],
     ].reset_index(drop=True)
 
 
 def build_meal_windows(cgm: pd.DataFrame, meals: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """Build 30 CGM readings from 30 minutes before each qualifying meal."""
+    """Build the same complete 30-point meal rows used in Project 2."""
     cgm = add_timestamp(cgm)
     readings = cgm.loc[:, ["timestamp", "Sensor Glucose (mg/dL)"]].copy()
     readings["glucose"] = pd.to_numeric(readings["Sensor Glucose (mg/dL)"], errors="coerce")
-    readings = readings.dropna(subset=["glucose"]).sort_values("timestamp")
+    readings = (
+        readings.dropna(subset=["glucose"])
+        .groupby("timestamp", as_index=False)["glucose"]
+        .mean()
+        .sort_values("timestamp")
+    )
+    glucose = pd.Series(
+        readings["glucose"].to_numpy(dtype=float),
+        index=pd.DatetimeIndex(readings["timestamp"]),
+    )
 
     windows: list[np.ndarray] = []
     carbs: list[float] = []
-    offsets = pd.to_timedelta(
-        np.arange(WINDOW_START_MINUTES, WINDOW_START_MINUTES + WINDOW_POINTS * CADENCE_MINUTES, CADENCE_MINUTES),
-        unit="min",
-    )
-
     for meal in meals.itertuples(index=False):
-        targets = pd.DataFrame({"target": meal.timestamp + offsets})
-        aligned = pd.merge_asof(
-            targets.sort_values("target"),
-            readings,
-            left_on="target",
-            right_on="timestamp",
-            direction="nearest",
-            tolerance=pd.Timedelta(minutes=2, seconds=30),
+        start = meal.timestamp + pd.Timedelta(minutes=WINDOW_START_MINUTES)
+        position = glucose.index.searchsorted(start)
+        if (
+            position == len(glucose)
+            or glucose.index[position] - start >= pd.Timedelta(minutes=CADENCE_MINUTES)
+        ):
+            continue
+        grid = pd.date_range(
+            glucose.index[position], periods=WINDOW_POINTS, freq=f"{CADENCE_MINUTES}min"
         )
-        if aligned["glucose"].notna().all():
-            windows.append(aligned["glucose"].to_numpy(dtype=float))
+        end = start + pd.Timedelta(minutes=WINDOW_POINTS * CADENCE_MINUTES)
+        interval = glucose.iloc[position : glucose.index.searchsorted(end)]
+        aligned = interval.reindex(
+            grid, method="nearest", tolerance=pd.Timedelta(seconds=90)
+        ).to_numpy(dtype=float)
+        if np.isfinite(aligned).all() and (aligned > 0).all():
+            windows.append(aligned)
             carbs.append(float(meal.carbs))
 
     if not windows:
@@ -183,9 +193,10 @@ def carbohydrate_range(insulin: pd.DataFrame) -> tuple[float, float]:
 def carbohydrate_bins(
     carbs: np.ndarray, minimum: float, maximum: float
 ) -> tuple[np.ndarray, int]:
-    """Create 20-gram labels anchored at the global meal-carb minimum."""
-    bin_count = max(1, int(np.ceil((maximum - minimum) / 20.0)))
-    labels = np.minimum(((carbs - minimum) // 20).astype(int), bin_count - 1)
+    """Create the assignment's integer n bins spanning the global range."""
+    bin_count = max(1, int((maximum - minimum) / 20.0))
+    edges = np.linspace(minimum, maximum, bin_count + 1)
+    labels = np.clip(np.digitize(carbs, edges, right=False) - 1, 0, bin_count - 1)
     return labels, bin_count
 
 
@@ -206,8 +217,20 @@ def total_sse(features: np.ndarray, labels: np.ndarray, *, include_noise: bool =
     return total
 
 
-def entropy_and_purity(true_bins: np.ndarray, cluster_labels: np.ndarray) -> tuple[float, float]:
-    """Return size-weighted entropy and global purity for a clustering."""
+def entropy_and_purity(
+    true_bins: np.ndarray, cluster_labels: np.ndarray, *, exclude_noise: bool = False
+) -> tuple[float, float]:
+    """Return size-weighted entropy and global purity for a clustering.
+
+    DBSCAN noise is not one of the required C1..Cn cluster-matrix rows, so it
+    is excluded from both the matrix and its denominator when requested.
+    """
+    if exclude_noise:
+        keep = cluster_labels != -1
+        true_bins = true_bins[keep]
+        cluster_labels = cluster_labels[keep]
+    if not len(true_bins):
+        raise ValueError("No clustered points are available for validation metrics.")
     total = len(true_bins)
     entropy = 0.0
     correct = 0
@@ -226,43 +249,60 @@ def select_dbscan(
     min_samples_values: list[int],
     target_cluster_count: int,
 ) -> tuple[DBSCAN, pd.DataFrame]:
-    """Choose an n-cluster DBSCAN fit with minimal noise, then best silhouette."""
+    """Choose an n-cluster DBSCAN fit that retains the most meal points."""
     trials: list[dict[str, float | int]] = []
-    best: tuple[float, float, DBSCAN] | None = None
+    candidates: list[tuple[float, float, float, DBSCAN]] = []
 
     for eps, min_samples in product(eps_values, min_samples_values):
         model = DBSCAN(eps=eps, min_samples=min_samples).fit(features)
         labels = model.labels_
         non_noise = labels != -1
         cluster_count = len(set(labels[non_noise]))
+        noise_fraction = float((labels == -1).mean())
+        largest_cluster_fraction = np.nan
         score = np.nan
         if (
             cluster_count == target_cluster_count
             and non_noise.sum() > cluster_count
         ):
             score = float(silhouette_score(features[non_noise], labels[non_noise]))
-            noise_fraction = float((labels == -1).mean())
-            candidate = (noise_fraction, -score, model)
-            if best is None or candidate[:2] < best[:2]:
-                best = candidate
+            sizes = [int((labels == label).sum()) for label in set(labels[non_noise])]
+            largest_cluster_fraction = max(sizes) / int(non_noise.sum())
+            candidates.append((score, noise_fraction, largest_cluster_fraction, model))
         trials.append(
             {
                 "eps": eps,
                 "min_samples": min_samples,
                 "clusters": cluster_count,
-                "noise_fraction": float((labels == -1).mean()),
+                "noise_fraction": noise_fraction,
                 "silhouette": score,
+                "largest_cluster_fraction": largest_cluster_fraction,
                 "matches_required_cluster_count": cluster_count == target_cluster_count,
             }
         )
 
-    if best is None:
+    if not candidates:
         raise ValueError(
             f"No DBSCAN parameter pair produced the required {target_cluster_count} clusters."
         )
-    return best[2], pd.DataFrame(trials).sort_values(
-        ["matches_required_cluster_count", "noise_fraction", "silhouette"],
-        ascending=[False, True, False],
+    # Do not manufacture attractive validation scores by labeling most meals
+    # as noise. Coverage is primary; silhouette then breaks the tie.
+    best = min(
+        candidates,
+        key=lambda candidate: (
+            candidate[1],
+            -candidate[0],
+            candidate[2],
+        ),
+    )
+    grid = pd.DataFrame(trials)
+    grid["selected"] = (
+        np.isclose(grid["eps"], best[3].eps)
+        & grid["min_samples"].eq(best[3].min_samples)
+    )
+    return best[3], grid.sort_values(
+        ["selected", "matches_required_cluster_count", "noise_fraction", "largest_cluster_fraction", "silhouette"],
+        ascending=[False, False, True, True, False],
         na_position="last",
     )
 
@@ -284,13 +324,15 @@ def main() -> None:
     kmeans = KMeans(n_clusters=cluster_count, random_state=0, n_init=20).fit(features)
     dbscan, grid = select_dbscan(
         features,
-        eps_values=[round(value, 1) for value in np.arange(0.8, 4.1, 0.1)],
+        eps_values=[round(value, 1) for value in np.arange(0.1, 5.1, 0.1)],
         min_samples_values=list(range(3, 11)),
         target_cluster_count=cluster_count,
     )
 
     k_entropy, k_purity = entropy_and_purity(true_bins, kmeans.labels_)
-    d_entropy, d_purity = entropy_and_purity(true_bins, dbscan.labels_)
+    d_entropy, d_purity = entropy_and_purity(
+        true_bins, dbscan.labels_, exclude_noise=True
+    )
     result = [
         total_sse(features, kmeans.labels_),
         total_sse(features, dbscan.labels_),

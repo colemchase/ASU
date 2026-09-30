@@ -43,11 +43,12 @@ back to the supplied ZIP only for local use. It:
 2. aligns 30 five-minute CGM readings beginning 30 minutes before each meal;
 3. transforms each complete 30-point meal window into the same 24 engineered
    features used by the Project 2 implementation, then standardizes them;
-4. derives the required number of 20-gram bins from the full insulin export,
-   then trains KMeans using that number;
+4. derives integer `n = (max - min) / 20` from the full insulin export,
+   divides that min-to-max range into `n` ground-truth intervals, then trains
+   KMeans using that number;
 5. grid-searches DBSCAN's `eps` and `min_samples`, retaining only settings
-   that form that same number of non-noise clusters and preferring fewer noise
-   points; and
+   that form that same number of non-noise clusters and preferring the setting
+   with the fewest noise points; and
 6. writes the required headerless six-value `Result.csv`, plus an inspectable `dbscan_grid.csv`.
 
 Run it after installing the pinned packages:
@@ -62,3 +63,5 @@ This implementation is self-contained: it retains Project 2's 24-feature
 schema in `main.py` so the assignment can be run without importing another
 project directory. The carbohydrate amount for each meal is held back from
 clustering and used only to form ground-truth bins for entropy and purity.
+DBSCAN noise points are excluded from its SSE and from its required `n`-row
+supervised-validation matrix.
