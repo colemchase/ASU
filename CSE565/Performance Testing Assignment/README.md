@@ -91,12 +91,17 @@ Run the three required load levels and write Locust HTML/CSV reports:
 ./run_locust_scenarios.sh
 ```
 
-The separate Task 5 candidate uses a larger workload profile and a faster 10,000-user
-ramp. Run it only after reviewing the baseline reports:
+The separate Task 5 test immediately spawns 10,000 users, holds the standard
+workload for five minutes, and treats a task response above 500 ms as a Locust
+failure. Run it after reviewing the baseline reports:
 
 ```bash
 ./run_locust_stress.sh
 ```
+
+For a Task 5 SLO-based test, add `CSE565_SLO_MS=500` to a Locust command. Any
+task that exceeds 500 ms is then reported by Locust as a failure, while the
+baseline runs remain exception-only measurements.
 
 Reports are written under `locust_results/` and intentionally excluded from Git.
 The default API mode is simulated to avoid sending high-volume traffic to a public

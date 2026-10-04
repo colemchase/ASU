@@ -29,9 +29,9 @@ run_scenario() {
     2>&1 | tee "$scenario_dir/locust_console.log"
 }
 
-# Same 30-second observation window for the required baseline comparison.
-run_scenario 100 20 30
-run_scenario 1000 200 30
-run_scenario 10000 1000 30
+# Immediate-spawn Task 3 tests: each requested user count is scheduled at once.
+run_scenario 100 100 30
+run_scenario 1000 1000 30
+run_scenario 10000 10000 30
 
 echo "Locust reports saved in: $results_root"

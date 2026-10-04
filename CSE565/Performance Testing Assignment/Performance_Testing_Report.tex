@@ -45,15 +45,9 @@
 \setcounter{page}{2}
 \doublespacing
 
-\section{Introduction}
-
-This draft documents the performance-testing framework, the three baseline test cases, and the raw execution results. The analysis, conclusions, and improved stress-test strategy will be added after review of the Locust reports.
-
 \section{Task 1: Identification of the Performance Testing Framework}
 
-Locust 2.46.6 was selected as the performance-testing framework. Locust is a Python framework in which a user class defines the work performed by a simulated user. It records request count, failures, response times, response-time percentiles, and requests per second (RPS). The framework can be run from the command line in headless mode and can create HTML and CSV reports.
-
-The official Locust training module used for the framework setup is the ``Your first test'' quick-start guide: \url{https://docs.locust.io/en/stable/quickstart.html}. The guide demonstrates defining a user class in \texttt{locustfile.py}, starting Locust, and reviewing response-time and RPS information. The official headless-mode guide used for the command-line test execution is \url{https://docs.locust.io/en/stable/running-without-web-ui.html}.
+Locust 2.46.6 was selected as the performance-testing framework. Locust is a Python framework in which a user class defines the work performed by a simulated user. It records request count, failures, response times, response-time percentiles, and requests per second (RPS). The framework can be run from the command line in headless mode and can create HTML and CSV reports. The Locust training module used for the framework setup is \textit{Your first test}: \url{https://docs.locust.io/en/stable/quickstart.html}.
 
 The instructor-provided \texttt{load\_test\_tasks.py} file was preserved without modification. The separate \texttt{locustfile.py} defines a Locust user workflow with the same six workload categories: data processing, simulated database query, API request, file I/O, computation, and logging. A controlled local profile was used so that the 10,000-user test could be executed without directing high-volume traffic to the public API in the starter script.
 
@@ -68,9 +62,9 @@ Each Locust user repeatedly executes the six workload categories in one workflow
 \toprule
 \textbf{Test} & \textbf{Load level} & \textbf{Users} & \textbf{Spawn rate} & \textbf{Duration} & \textbf{Profile} \\
 \midrule
-Test 1 & Baseline load & 100 & 20 users/s & 30 s & Standard \\
-Test 2 & Medium load & 1,000 & 200 users/s & 30 s & Standard \\
-Test 3 & High load & 10,000 & 1,000 users/s & 30 s & Standard \\
+Test 1 & Baseline load & 100 & 100 users/s & 30 s & Standard \\
+Test 2 & Medium load & 1,000 & 1,000 users/s & 30 s & Standard \\
+Test 3 & High load & 10,000 & 10,000 users/s & 30 s & Standard \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -80,14 +74,14 @@ The following command is implemented by \texttt{run\_locust\_scenarios.sh}. It i
 \begin{lstlisting}[style=code,language=bash]
 CSE565_PROFILE=standard CSE565_API_MODE=simulated
 CSE565_DURATION_SECONDS=30 .venv/bin/locust -f locustfile.py --headless
-  --users 100 --spawn-rate 20 --stop-timeout 15
+  --users 100 --spawn-rate 100 --stop-timeout 15
   --csv locust_results/users-100/locust
   --html locust_results/users-100/locust_report.html
 \end{lstlisting}
 
 \section{Task 3: Test Execution Results}
 
-The three baseline tests completed through Locust on October 4, 2026. Table~\ref{tab:aggregate-results} reproduces the aggregate row from each Locust \texttt{locust\_stats.csv} report. Response-time values are in milliseconds. The result files are retained in the project under \texttt{locust\_results/20261004-123006/}.
+The three immediate-spawn tests were completed through Locust on October 4, 2026. Table~\ref{tab:aggregate-results} reproduces the aggregate row from each Locust \texttt{locust\_stats.csv} report. Response-time values are in milliseconds. The result files are retained in the project under \texttt{locust\_results/20261004-130817/}.
 
 \begin{table}[H]
 \centering
@@ -98,9 +92,9 @@ The three baseline tests completed through Locust on October 4, 2026. Table~\ref
 \toprule
 \textbf{Users} & \textbf{Requests} & \textbf{Failures} & \textbf{Average (ms)} & \textbf{Median (ms)} & \textbf{Maximum (ms)} & \textbf{RPS} \\
 \midrule
-100 & 21,512 & 0 & 2.917 & 0.009 & 22.343 & 740.632 \\
-1,000 & 221,958 & 0 & 2.705 & 0.009 & 36.228 & 7,390.853 \\
-10,000 & 742,403 & 0 & 141.188 & 0.009 & 734.794 & 22,505.491 \\
+100 & 23,018 & 0 & 2.903 & 0.009 & 21.449 & 792.579 \\
+1,000 & 237,133 & 0 & 2.804 & 0.009 & 49.595 & 7,895.465 \\
+10,000 & 739,782 & 0 & 146.865 & 0.009 & 730.365 & 23,453.975 \\
 \bottomrule
 \end{tabular}
 }
@@ -114,34 +108,42 @@ The three baseline tests completed through Locust on October 4, 2026. Table~\ref
 \toprule
 \textbf{Load and task} & \textbf{Average (ms)} & \textbf{Median (ms)} & \textbf{RPS} \\
 \midrule
-100: Data Processing & 0.193 & 0.058 & 123.462 \\
-100: Database Query & 5.641 & 5.010 & 123.462 \\
-100: API Request & 10.916 & 11.000 & 123.427 \\
-100: File I/O & 0.554 & 0.082 & 123.427 \\
-100: Computation & 0.029 & 0.009 & 123.427 \\
-100: Logging & 0.169 & 0.022 & 123.427 \\
+100: Data Processing & 0.167 & 0.057 & 132.119 \\
+100: Database Query & 5.618 & 5.006 & 132.119 \\
+100: API Request & 10.981 & 11.000 & 132.085 \\
+100: File I/O & 0.482 & 0.074 & 132.085 \\
+100: Computation & 0.026 & 0.009 & 132.085 \\
+100: Logging & 0.146 & 0.022 & 132.085 \\
 \midrule
-1,000: Data Processing & 0.082 & 0.057 & 1,232.608 \\
-1,000: Database Query & 5.365 & 5.002 & 1,231.809 \\
-1,000: API Request & 10.583 & 10.002 & 1,231.609 \\
-1,000: File I/O & 0.147 & 0.074 & 1,231.609 \\
-1,000: Computation & 0.012 & 0.009 & 1,231.609 \\
-1,000: Logging & 0.041 & 0.021 & 1,231.609 \\
+1,000: Data Processing & 0.079 & 0.057 & 1,316.771 \\
+1,000: Database Query & 5.682 & 5.001 & 1,316.005 \\
+1,000: API Request & 10.869 & 10.002 & 1,315.672 \\
+1,000: File I/O & 0.144 & 0.074 & 1,315.672 \\
+1,000: Computation & 0.012 & 0.009 & 1,315.672 \\
+1,000: Logging & 0.040 & 0.021 & 1,315.672 \\
 \midrule
-10,000: Data Processing & 0.063 & 0.057 & 3,812.246 \\
-10,000: Database Query & 418.040 & 470.000 & 3,788.025 \\
-10,000: API Request & 427.518 & 480.000 & 3,726.305 \\
-10,000: File I/O & 0.127 & 0.072 & 3,726.305 \\
-10,000: Computation & 0.010 & 0.009 & 3,726.305 \\
-10,000: Logging & 0.037 & 0.021 & 3,726.305 \\
+10,000: Data Processing & 0.062 & 0.057 & 4,024.620 \\
+10,000: Database Query & 435.702 & 470.000 & 3,944.789 \\
+10,000: API Request & 445.580 & 480.000 & 3,871.141 \\
+10,000: File I/O & 0.121 & 0.071 & 3,871.141 \\
+10,000: Computation & 0.010 & 0.009 & 3,871.141 \\
+10,000: Logging & 0.039 & 0.021 & 3,871.141 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\section{Task 4: Analysis of Test Execution Results}
+
+The 100-user and 1,000-user immediate-spawn tests completed with zero recorded failures. At 100 users, the aggregate Locust report recorded 792.579 requests per second (RPS), and at 1,000 users it recorded 7,895.465 RPS. The simulated database query and API request had low response times at these two levels. For example, the database-query average was 5.618 ms at 100 users and 5.682 ms at 1,000 users; the API-request average was 10.981 ms and 10.869 ms, respectively.
+
+The 10,000-user test also completed with zero recorded failures. The aggregate RPS increased to 23,453.975, which shows that Locust continued to complete measured task requests. However, the response-time data changed substantially for the simulated database-query and API-request tasks. The database-query average increased to 435.702 ms with a 470.000 ms median and a 729.283 ms maximum. The API-request average increased to 445.580 ms with a 480.000 ms median and a 730.365 ms maximum. In comparison, the data-processing, computation, file-I/O, and logging task averages remained below 1 ms at the same load level.
+
+These results show no reported execution failures, but they do show a substantial responsiveness degradation at 10,000 users for the database-query and API-request portions of the workflow. A response time near one-half second remains a completed response rather than a failure, but it is noticeably slower than the approximately 5--11 ms response times recorded at 100 and 1,000 users. Therefore, the system remained available during the 10,000-user test, while the affected workflow tasks became less responsive.
+
+One limitation is that the workload is executed by the Locust user process itself. Consequently, the increased delay may reflect saturation of the Locust/gevent scheduling process in addition to pressure in the simulated application workload. The results identify the database-query and API-request path as the locations where the test observed degradation, but a separate application target process would be needed before attributing the full response-time increase solely to an application-service bottleneck.
+
 \section*{References}
 
 \hangindent=0.5in Locust. (n.d.). \textit{Your first test}. Locust documentation. Retrieved October 4, 2026, from \url{https://docs.locust.io/en/stable/quickstart.html}
-
-\hangindent=0.5in Locust. (n.d.). \textit{Running without the web UI}. Locust documentation. Retrieved October 4, 2026, from \url{https://docs.locust.io/en/stable/running-without-web-ui.html}
 
 \end{document}

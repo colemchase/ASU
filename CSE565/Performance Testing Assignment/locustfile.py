@@ -11,6 +11,7 @@ Environment variables:
     CSE565_ARTIFACT_DIR: directory for per-run temporary I/O and logs
     CSE565_API_MODE: simulated (default) or real
     CSE565_API_URL: endpoint used only when API mode is real
+    CSE565_SLO_MS: optional maximum response time; breaches are Locust failures
 """
 
 from __future__ import annotations
@@ -51,6 +52,7 @@ if PROFILE_NAME not in PROFILES:
 PROFILE = PROFILES[PROFILE_NAME]
 API_MODE = os.getenv("CSE565_API_MODE", "simulated")
 API_URL = os.getenv("CSE565_API_URL", "https://jsonplaceholder.typicode.com/posts")
+SLO_RESPONSE_TIME_MS = float(os.getenv("CSE565_SLO_MS", "0"))
 ARTIFACT_DIR = Path(os.getenv("CSE565_ARTIFACT_DIR", "locust_results/current"))
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 LOG_LOCK = Semaphore()
@@ -86,6 +88,11 @@ class SampleApplicationUser(User):
         except Exception as error:  # Locust records the failure rather than ending the whole run.
             exception = error
         elapsed_ms = (time.perf_counter() - started) * 1_000
+        if exception is None and SLO_RESPONSE_TIME_MS > 0 and elapsed_ms > SLO_RESPONSE_TIME_MS:
+            exception = TimeoutError(
+                f"{name} exceeded the {SLO_RESPONSE_TIME_MS:.0f} ms response-time SLO "
+                f"({elapsed_ms:.3f} ms)"
+            )
         self.environment.events.request.fire(
             request_type="TASK",
             name=name,
