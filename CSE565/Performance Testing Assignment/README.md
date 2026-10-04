@@ -71,6 +71,37 @@ the title-page, double-spacing, paragraph-indent, table/figure, and reference st
 used by the other CSE 565 project reports. Fill its results tables only from the
 generated `summary.csv` files.
 
+## Locust Framework Tests
+
+The assignment-ready framework test suite is `locustfile.py`. It uses
+[Locust](https://locust.io/) to record failures, response times, and requests per
+second for each workload category. The instructor-provided `load_test_tasks.py`
+remains unmodified.
+
+Install the project-local dependency once:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install locust
+```
+
+Run the three required load levels and write Locust HTML/CSV reports:
+
+```bash
+./run_locust_scenarios.sh
+```
+
+The separate Task 5 candidate uses a larger workload profile and a faster 10,000-user
+ramp. Run it only after reviewing the baseline reports:
+
+```bash
+./run_locust_stress.sh
+```
+
+Reports are written under `locust_results/` and intentionally excluded from Git.
+The default API mode is simulated to avoid sending high-volume traffic to a public
+service. Use `CSE565_API_MODE=real` only with an endpoint you are authorized to load.
+
 ## Side Effects
 
 Running the script creates or updates:
