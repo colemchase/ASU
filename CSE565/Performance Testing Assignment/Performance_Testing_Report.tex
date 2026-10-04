@@ -79,9 +79,27 @@ CSE565_DURATION_SECONDS=30 .venv/bin/locust -f locustfile.py --headless
   --html locust_results/users-100/locust_report.html
 \end{lstlisting}
 
+Figures~\ref{fig:baseline-script} and~\ref{fig:locust-workflow} show the implemented scenario script and Locust workflow. The script invokes the same test process at 100, 1,000, and 10,000 immediately spawned users, and the workflow records each of the six workload categories separately.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{screenshots/submission/baseline-script.png}
+\caption{Scenario script used to execute the 100-, 1,000-, and 10,000-user baseline tests.}
+\label{fig:baseline-script}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{screenshots/submission/locust-workflow.png}
+\caption{Locust workflow configuration for the performance-test workload.}
+\label{fig:locust-workflow}
+\end{figure}
+
 \section{Task 3: Test Execution Results}
 
-The three immediate-spawn tests were completed through Locust on October 4, 2026. Table~\ref{tab:aggregate-results} reproduces the aggregate row from each Locust \texttt{locust\_stats.csv} report. Response-time values are in milliseconds. The result files are retained in the project under \texttt{locust\_results/20261004-130817/}.
+The three immediate-spawn tests were completed through Locust on October 4, 2026. Table~\ref{tab:aggregate-results} reproduces the aggregate row from each Locust report. Response-time values are in milliseconds.
+
+RPS was monitored to measure completed-work throughput, response time was monitored to identify user-visible delay, and failures were monitored to distinguish a slow but completed task from an exception or an invalid result. Using all three metrics is necessary because a higher RPS alone does not show whether individual tasks remain responsive or correct.
 
 \begin{table}[H]
 \centering
@@ -141,6 +159,51 @@ The 10,000-user test also completed with zero recorded failures. The aggregate R
 These results show no reported execution failures, but they do show a substantial responsiveness degradation at 10,000 users for the database-query and API-request portions of the workflow. A response time near one-half second remains a completed response rather than a failure, but it is noticeably slower than the approximately 5--11 ms response times recorded at 100 and 1,000 users. Therefore, the system remained available during the 10,000-user test, while the affected workflow tasks became less responsive.
 
 One limitation is that the workload is executed by the Locust user process itself. Consequently, the increased delay may reflect saturation of the Locust/gevent scheduling process in addition to pressure in the simulated application workload. The results identify the database-query and API-request path as the locations where the test observed degradation, but a separate application target process would be needed before attributing the full response-time increase solely to an application-service bottleneck.
+
+\section{Task 5: Improvement of Test Strategy}
+
+Task 4 showed an important gap in the original strategy: the 10,000-user test reported zero Locust exceptions even though the database-query and API-request tasks had become much slower. For Task 5, the same immediate 10,000-user workload was retained, but the observation period was extended from 30 to 60 seconds and a 500 ms response-time service-level objective (SLO) was added. A task that takes more than 500 ms is recorded as a performance failure. This is a meaningful improvement because it turns the response degradation already observed in Task 4 into a clear pass/fail result without changing the workload being tested.
+
+The 500 ms limit was selected because a half-second delay is substantially slower than the 5--11 ms response times at 100 and 1,000 users and represents a noticeable delay in an interactive application. It is not an exception in the code; it is a performance failure based on the requirement that the task remain responsive.
+
+\begin{lstlisting}[style=code,language=bash]
+CSE565_PROFILE=standard CSE565_API_MODE=simulated \
+CSE565_DURATION_SECONDS=60 CSE565_SLO_MS=500 \
+  .venv/bin/locust -f locustfile.py --headless \
+  --users 10000 --spawn-rate 10000 --stop-timeout 30
+\end{lstlisting}
+
+The 60-second test recorded 1,433,657 measured task requests and 358,325 SLO failures (24.99\%). All SLO failures occurred in the same database-query and API-request paths that degraded in Task 4. The other four task types had zero failures. This outcome verifies that the Task 4 latency is not merely a small numerical change: under the stated response-time requirement, it is an observable performance failure.
+
+\begin{table}[H]
+\centering
+\caption{Task 5 10,000-user, 60-second SLO results.}
+\label{tab:task5-results}
+\begin{tabular}{>{\raggedright\arraybackslash}p{1.3in}rrrr}
+\toprule
+\textbf{Task} & \textbf{Requests} & \textbf{SLO failures} & \textbf{Failure rate} & \textbf{Average (ms)} \\
+\midrule
+API Request & 237,984 & 179,989 & 75.63\% & 551.529 \\
+Database Query & 240,105 & 178,336 & 74.27\% & 541.724 \\
+All other tasks & 955,568 & 0 & 0.00\% & $<$ 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure~\ref{fig:task5-slo} makes the outcome easy to see: only the database-query and API-request tasks cross the 500 ms average-response-time line and receive SLO failures. The strategy did not identify a new code path beyond Task 4. Instead, it provided stronger evidence about the existing bottlenecks by showing that they violate a user-facing performance requirement. The result also shows a weakness of the test environment: Locust reported high local CPU utilization during the run, so a follow-up should use distributed Locust workers or a separate application target to confirm the exact capacity of the simulated service.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{screenshots/task5_slo_results.png}
+\caption{Task 5 results: 10,000 immediate users for 60 seconds with a 500 ms SLO.}
+\label{fig:task5-slo}
+\end{figure}
+
+\section{Conclusion}
+
+The requested baseline tests show that the workflow completed without Locust-recorded execution failures at 100, 1,000, and 10,000 immediately spawned users. Performance was comparable at 100 and 1,000 users. At 10,000 users, the database-query and API-request tasks degraded from approximately 5--11 ms to approximately 436--446 ms on average, even though the tasks still completed. This distinguishes availability from acceptable responsiveness: a completed request is not necessarily a timely request.
+
+The revised Task 5 strategy gave the Task 4 degradation a meaningful pass/fail interpretation. With a 500 ms response-time SLO, the 10,000-user workload produced failures in approximately three-quarters of the API-request and database-query tasks, while all other tasks passed. Thus, the improved strategy did not discover a separate bottleneck, but it clearly establishes that the two already observed slow paths fail an interactive-performance requirement under sustained high load.
 
 \section*{References}
 

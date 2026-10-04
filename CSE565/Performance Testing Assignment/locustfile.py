@@ -90,8 +90,7 @@ class SampleApplicationUser(User):
         elapsed_ms = (time.perf_counter() - started) * 1_000
         if exception is None and SLO_RESPONSE_TIME_MS > 0 and elapsed_ms > SLO_RESPONSE_TIME_MS:
             exception = TimeoutError(
-                f"{name} exceeded the {SLO_RESPONSE_TIME_MS:.0f} ms response-time SLO "
-                f"({elapsed_ms:.3f} ms)"
+                f"{name} exceeded the {SLO_RESPONSE_TIME_MS:.0f} ms response-time SLO"
             )
         self.environment.events.request.fire(
             request_type="TASK",
