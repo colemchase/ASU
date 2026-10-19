@@ -28,9 +28,10 @@ class Branch(example_pb2_grpc.RPCServicer):
 
     def tellBranches(self, request):
         for stub in self.stubList:
-            stub.MsgDelivery(request)
+            stub.MsgDelivery(request, timeout=30)
 
     def startServer(self, ready_event, shutdown_event):
+        self.shutdown_event = shutdown_event
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         example_pb2_grpc.add_RPCServicer_to_server(self, server)
 
@@ -43,7 +44,11 @@ class Branch(example_pb2_grpc.RPCServicer):
         server.stop(grace=5).wait() # Allow active calls time to finish.
 
     def MsgDelivery(self, request, context):
-        if request.interface == "deposit":
+        if request.interface == "shutdown":
+            # All branch processes share this event; the client signals it once
+            # after the scheduled customer events have completed.
+            self.shutdown_event.set()
+        elif request.interface == "deposit":
             self.balance += int(request.money)
             propagation = example_pb2.Request(
                 id=request.id,

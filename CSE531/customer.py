@@ -1,7 +1,6 @@
 import grpc
 import example_pb2
 import example_pb2_grpc
-import time
 
 class Customer:
     def __init__(self, id, events):
@@ -20,13 +19,19 @@ class Customer:
         self.stub = example_pb2_grpc.RPCStub(channel)
 
 
-    def executeEvents(self):
-        for event in self.events:
+    def executeEvents(self, events=None):
+        # The scheduler can send one event at a time to preserve global order.
+        for event in self.events if events is None else events:
             request = example_pb2.Request(
                 id=event["id"],
                 interface=event["interface"],
                 money=event.get("money", 0)
             )
-            print(f"  Event {event["id"]}: {event["interface"]}, money={event.get("money", 0)}")
-            response = self.stub.MsgDelivery(request)
-            print(response)
+            response = self.stub.MsgDelivery(request, timeout=60)
+            if event["interface"] == "query":
+                result = {"interface": "query", "balance": response.balance}
+            else:
+                # A successful RPC means the branch finished its propagation.
+                result = {"interface": event["interface"], "result": "success"}
+            self.recvMsg.append(result)
+        return self.recvMsg
