@@ -49,6 +49,22 @@ def stop_branches(branch_ids):
     raise RuntimeError("Could not signal the branch servers to shut down")
 
 
+def build_schedule(customers, branch_ids):
+    """Map each unique event ID to the customer record that owns it."""
+    events_by_id = {}
+    for index, customer in enumerate(customers):
+        if customer["id"] not in branch_ids:
+            raise ValueError(f"No branch for customer {customer['id']}")
+        for event in customer["events"]:
+            event_id = event["id"]
+            if event_id in events_by_id:
+                raise ValueError(f"Duplicate event ID: {event_id}")
+            if event["interface"] not in ("query", "deposit", "withdraw"):
+                raise ValueError(f"Unknown customer operation: {event['interface']}")
+            events_by_id[event_id] = (index, event)
+    return events_by_id
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", help="input JSON file")
@@ -61,18 +77,8 @@ def main():
     if not branch_ids:
         raise ValueError("Input must contain at least one branch")
     output = [{"id": customer["id"], "recv": []} for customer in customers]
-    events_by_id = {}
+    events_by_id = build_schedule(customers, branch_ids)
     remaining = [len(customer["events"]) for customer in customers]
-    for index, customer in enumerate(customers):
-        if customer["id"] not in branch_ids:
-            raise ValueError(f"No branch for customer {customer['id']}")
-        for event in customer["events"]:
-            event_id = event["id"]
-            if event_id in events_by_id:
-                raise ValueError(f"Duplicate event ID: {event_id}")
-            if event["interface"] not in ("query", "deposit", "withdraw"):
-                raise ValueError(f"Unknown customer operation: {event['interface']}")
-            events_by_id[event_id] = (index, event)
 
     results = Queue()
     workers = {}
