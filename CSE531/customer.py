@@ -14,10 +14,19 @@ class Customer:
         # pointer for the stub
         self.stub = None
 
-    # TODO: students are expected to create the Customer stub
     def createStub(self):
-        pass
+        port = 50000 + self.id
+        channel = grpc.insecure_channel(f"localhost:{port}")
+        self.stub = example_pb2_grpc.RPCStub(channel)
 
-    # TODO: students are expected to send out the events to the Bank
+
     def executeEvents(self):
-        pass
+        for event in self.events:
+            request = example_pb2.Request(
+                id=event["id"],
+                interface=event["interface"],
+                money=event.get("money", 0)
+            )
+            print(f"  Event {event["id"]}: {event["interface"]}, money={event.get("money", 0)}")
+            response = self.stub.MsgDelivery(request)
+            print(response)

@@ -3,6 +3,12 @@ from pathlib import Path
 
 from customer import Customer
 from branch import Branch
+from multiprocessing import Process, Event
+
+
+def run_branch(branch_id, balance, branch_ids, shutdown_event):
+    branch = Branch(branch_id, balance, branch_ids)
+    branch.startServer(shutdown_event)
 
 
 def main():
@@ -21,24 +27,37 @@ def main():
     ]
 
     branch_ids = [
-    record["id"]
-    for record in records
-    if record["type"] == "branch"
-]
-
-    branches = [
-        Branch(record["id"], record["balance"], branch_ids)
+        record["id"]
         for record in records
         if record["type"] == "branch"
     ]
 
-    for customer in customers:
-        print(f"Customer {customer.id} (uses Branch {customer.id})")
-        for event in customer.events:
-            event_id = event["id"]
-            operation = event["interface"]
-            money = event.get("money")  # Queries do not have a money field.
-            print(f"  Event {event_id}: {operation}, money={money}")
+    branch_records = [
+        record
+        for record in records
+        if record["type"] == "branch"
+    ]
+
+
+    branch_processes = []
+    shutdown_event = Event()
+    for record in branch_records:
+        process = Process(
+            target=run_branch, args=(record["id"], record["balance"], branch_ids, shutdown_event),
+            )
+        process.start()
+        branch_processes.append(process)
+    
+
+    try:
+        for customer in customers:
+            print(f"Customer {customer.id} (uses Branch {customer.id})")
+            customer.createStub()
+            customer.executeEvents()
+    finally:
+        shutdown_event.set()
+        for process in branch_processes:
+            process.join()
 
 
 if __name__ == "__main__":
