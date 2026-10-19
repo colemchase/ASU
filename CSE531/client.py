@@ -7,8 +7,8 @@ from queue import Empty
 
 import grpc
 
-import example_pb2
-import example_pb2_grpc
+import banks_pb2
+import banks_pb2_grpc
 from customer import Customer
 
 
@@ -41,8 +41,8 @@ def stop_branches(branch_ids):
     for branch_id in branch_ids:
         try:
             with grpc.insecure_channel(f"localhost:{50000 + branch_id}") as channel:
-                stub = example_pb2_grpc.RPCStub(channel)
-                stub.MsgDelivery(example_pb2.Request(interface="shutdown"), timeout=3)
+                stub = banks_pb2_grpc.RPCStub(channel)
+                stub.MsgDelivery(banks_pb2.Request(interface="shutdown"), timeout=3)
                 return
         except grpc.RpcError:
             continue

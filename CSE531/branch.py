@@ -1,9 +1,9 @@
 import grpc
-import example_pb2
-import example_pb2_grpc
+import banks_pb2
+import banks_pb2_grpc
 from concurrent import futures
 
-class Branch(example_pb2_grpc.RPCServicer):
+class Branch(banks_pb2_grpc.RPCServicer):
 
     def __init__(self, id, balance, branches):
         # unique ID of the Branch
@@ -23,7 +23,7 @@ class Branch(example_pb2_grpc.RPCServicer):
                 continue
             port = 50000 + branch_id
             channel = grpc.insecure_channel(f"localhost:{port}")
-            stub = example_pb2_grpc.RPCStub(channel)
+            stub = banks_pb2_grpc.RPCStub(channel)
             self.stubList.append(stub)
 
     def tellBranches(self, request):
@@ -33,7 +33,7 @@ class Branch(example_pb2_grpc.RPCServicer):
     def startServer(self, ready_event, shutdown_event):
         self.shutdown_event = shutdown_event
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        example_pb2_grpc.add_RPCServicer_to_server(self, server)
+        banks_pb2_grpc.add_RPCServicer_to_server(self, server)
 
         port = 50000 + self.id
         server.add_insecure_port(f"[::]:{port}")
@@ -50,7 +50,7 @@ class Branch(example_pb2_grpc.RPCServicer):
             self.shutdown_event.set()
         elif request.interface == "deposit":
             self.balance += int(request.money)
-            propagation = example_pb2.Request(
+            propagation = banks_pb2.Request(
                 id=request.id,
                 interface="propagate_deposit",
                 money=request.money,
@@ -58,7 +58,7 @@ class Branch(example_pb2_grpc.RPCServicer):
             self.tellBranches(propagation)
         elif request.interface == "withdraw":
             self.balance -= int(request.money)
-            propagation = example_pb2.Request(
+            propagation = banks_pb2.Request(
                 id=request.id,
                 interface="propagate_withdraw",
                 money=request.money,
@@ -70,4 +70,4 @@ class Branch(example_pb2_grpc.RPCServicer):
             self.balance -= int(request.money)
         elif request.interface != "query":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Unknown operation")
-        return example_pb2.Response(balance=self.balance)
+        return banks_pb2.Response(balance=self.balance)

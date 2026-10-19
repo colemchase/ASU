@@ -1,6 +1,6 @@
 import grpc
-import example_pb2
-import example_pb2_grpc
+import banks_pb2
+import banks_pb2_grpc
 
 class Customer:
     def __init__(self, id, events):
@@ -16,13 +16,13 @@ class Customer:
     def createStub(self):
         port = 50000 + self.id
         channel = grpc.insecure_channel(f"localhost:{port}")
-        self.stub = example_pb2_grpc.RPCStub(channel)
+        self.stub = banks_pb2_grpc.RPCStub(channel)
 
 
     def executeEvents(self, events=None):
         # The scheduler can send one event at a time to preserve global order.
         for event in self.events if events is None else events:
-            request = example_pb2.Request(
+            request = banks_pb2.Request(
                 id=event["id"],
                 interface=event["interface"],
                 money=event.get("money", 0)

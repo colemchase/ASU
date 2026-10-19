@@ -31,9 +31,9 @@ in the original project folder it may be named `grpc_input.json` instead.
 
 ## Design
 
-- `protos/example.proto` defines the unary `MsgDelivery` RPC and its request
-  and response messages. The generated `example_pb2.py` and
-  `example_pb2_grpc.py` modules are included.
+- `protos/banks.proto` defines the unary `MsgDelivery` RPC and its request
+  and response messages. The generated `banks_pb2.py` and
+  `banks_pb2_grpc.py` modules are included.
 - `server.py` starts a separate process and gRPC server for each branch.
   Branch ID `n` listens on port `50000 + n` on the local machine.
 - `client.py` associates each event ID with its customer record and executes
@@ -71,5 +71,5 @@ and back to 400.
 To regenerate the protobuf modules after changing the service definition:
 
 ```sh
-python -m grpc_tools.protoc -Iprotos --python_out=. --grpc_python_out=. protos/example.proto
+python -m grpc_tools.protoc -Iprotos --python_out=. --grpc_python_out=. protos/banks.proto
 ```

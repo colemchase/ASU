@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import grpc
 
-import example_pb2
+import banks_pb2
 from branch import Branch
 from client import build_schedule
 from customer import Customer
@@ -14,14 +14,14 @@ from customer import Customer
 class BranchTests(unittest.TestCase):
     def setUp(self):
         # Exercise the handler directly, without opening sockets.
-        with patch("branch.grpc.insecure_channel"), patch("branch.example_pb2_grpc.RPCStub") as stub:
+        with patch("branch.grpc.insecure_channel"), patch("branch.banks_pb2_grpc.RPCStub") as stub:
             self.peer = Mock()
             stub.return_value = self.peer
             self.branch = Branch(1, 400, [1, 2])
         self.context = Mock()
 
     def deliver(self, operation, money=0):
-        request = example_pb2.Request(id=7, interface=operation, money=money)
+        request = banks_pb2.Request(id=7, interface=operation, money=money)
         return self.branch.MsgDelivery(request, self.context)
 
     def test_query_returns_balance_without_propagation(self):
@@ -63,9 +63,9 @@ class CustomerTests(unittest.TestCase):
         customer = Customer(1, events)
         customer.stub = Mock()
         customer.stub.MsgDelivery.side_effect = [
-            example_pb2.Response(balance=410),
-            example_pb2.Response(balance=410),
-            example_pb2.Response(balance=405),
+            banks_pb2.Response(balance=410),
+            banks_pb2.Response(balance=410),
+            banks_pb2.Response(balance=405),
         ]
         self.assertEqual(customer.executeEvents(), [
             {"interface": "deposit", "result": "success"},
