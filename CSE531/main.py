@@ -11,6 +11,12 @@ def run_branch(branch_id, balance, branch_ids, ready_event, shutdown_event):
     branch.startServer(ready_event, shutdown_event)
 
 
+def run_customer(customer_id, events):
+    customer = Customer(customer_id, events)
+    customer.createStub()
+    customer.executeEvents()
+
+
 def main():
     # Find the input file next to this script, regardless of where it is run from.
     input_path = Path(__file__).resolve().parent / "grpc_input.json"
@@ -18,10 +24,8 @@ def main():
     with input_path.open() as input_file:
         records = json.load(input_file)
 
-    # The input contains both customers and branches. Keep each customer entry
-    # in the list, even if another entry has the same customer ID.
     customers = [
-        Customer(record["id"], record["events"])
+        record
         for record in records
         if record["type"] == "customer"
     ]
@@ -58,9 +62,17 @@ def main():
             if not ready_event.wait(timeout=30):
                 raise RuntimeError("A branch server did not start in time")
         for customer in customers:
-            print(f"Customer {customer.id} (uses Branch {customer.id})")
-            customer.createStub()
-            customer.executeEvents()
+            print(f"Customer {customer['id']} (uses Branch {customer['id']})")
+
+            process = Process(
+                target=run_customer,
+                args=(customer["id"], customer["events"]),
+            )
+            process.start()
+            process.join()
+
+            if process.exitcode != 0:
+                raise RuntimeError(f"Customer {customer['id']} failed")
     finally:
         shutdown_event.set()
         for process in branch_processes:
