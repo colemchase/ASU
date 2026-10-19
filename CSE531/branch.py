@@ -30,7 +30,7 @@ class Branch(example_pb2_grpc.RPCServicer):
         for stub in self.stubList:
             stub.MsgDelivery(request)
 
-    def startServer(self, shutdown_event):
+    def startServer(self, ready_event, shutdown_event):
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         example_pb2_grpc.add_RPCServicer_to_server(self, server)
 
@@ -38,6 +38,7 @@ class Branch(example_pb2_grpc.RPCServicer):
         server.add_insecure_port(f"[::]:{port}")
 
         server.start()
+        ready_event.set()
         shutdown_event.wait()       # Wait until main signals us to stop.
         server.stop(grace=5).wait() # Allow active calls time to finish.
 

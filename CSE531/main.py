@@ -6,9 +6,9 @@ from branch import Branch
 from multiprocessing import Process, Event
 
 
-def run_branch(branch_id, balance, branch_ids, shutdown_event):
+def run_branch(branch_id, balance, branch_ids, ready_event, shutdown_event):
     branch = Branch(branch_id, balance, branch_ids)
-    branch.startServer(shutdown_event)
+    branch.startServer(ready_event, shutdown_event)
 
 
 def main():
@@ -40,16 +40,23 @@ def main():
 
 
     branch_processes = []
+    ready_events = []
     shutdown_event = Event()
     for record in branch_records:
+        ready_event = Event()
         process = Process(
-            target=run_branch, args=(record["id"], record["balance"], branch_ids, shutdown_event),
+            target=run_branch, args=(record["id"], record["balance"], branch_ids, ready_event, shutdown_event),
             )
         process.start()
+        ready_events.append(ready_event)
         branch_processes.append(process)
+
     
 
     try:
+        for ready_event in ready_events:
+            if not ready_event.wait(timeout=30):
+                raise RuntimeError("A branch server did not start in time")
         for customer in customers:
             print(f"Customer {customer.id} (uses Branch {customer.id})")
             customer.createStub()
