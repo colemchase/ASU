@@ -13,6 +13,8 @@ class Customer:
         # pointer for the stub
         self.stub = None
 
+        self.event_log = list()
+
         self.logical_clock = 0
 
     def createStub(self):
@@ -31,11 +33,21 @@ class Customer:
                 money=event.get("money", 0),
                 logical_clock=self.logical_clock
             )
+            self.event_log.append({
+                "id": self.id,
+                "customer-request-id": request.id,
+                "type": "customer",
+                "logical_clock": self.logical_clock,
+                "interface": request.interface,
+                "comment": f"event_sent from customer {self.id}"
+            })
             response = self.stub.MsgDelivery(request, timeout=60)
             if event["interface"] == "query":
                 result = {"interface": "query", "balance": response.balance}
             else:
                 # A successful RPC means the branch finished its propagation.
                 result = {"interface": event["interface"], "result": "success"}
+            
             self.recvMsg.append(result)
+            
         return self.recvMsg

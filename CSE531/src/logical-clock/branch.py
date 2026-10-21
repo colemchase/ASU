@@ -15,6 +15,8 @@ class Branch(banks_pb2_grpc.RPCServicer):
 
         self.recvMsg = list()
 
+        self.event = list()
+
         self.logical_clock = 0
 
         # iterate the processID of the branches
