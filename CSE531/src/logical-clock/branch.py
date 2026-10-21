@@ -1,116 +1,103 @@
-import grpc
-import banks_pb2
-import banks_pb2_grpc
+import json
 from concurrent import futures
 
+import grpc
+
+import banks_pb2
+import banks_pb2_grpc
+
+
 class Branch(banks_pb2_grpc.RPCServicer):
-
     def __init__(self, id, balance, branches):
-        # unique ID of the Branch
         self.id = id
-        # replica of the Branch's balance
         self.balance = balance
-        
-        self.stubList = list()
-
-        self.recvMsg = list()
-
-        self.event_log = list()
-
         self.logical_clock = 0
+        self.event_log = []
+        self.stubList = []
 
-        # iterate the processID of the branches
-        # the list of process IDs of the branches
-        self.branches = branches
-        for branch_id in self.branches:
+        for branch_id in branches:
             if branch_id == self.id:
                 continue
-            port = 50000 + branch_id
-            channel = grpc.insecure_channel(f"localhost:{port}")
-            stub = banks_pb2_grpc.RPCStub(channel)
-            self.stubList.append((branch_id, stub))
+            channel = grpc.insecure_channel(f"localhost:{50000 + branch_id}")
+            self.stubList.append((branch_id, banks_pb2_grpc.RPCStub(channel)))
+
+    def record_event(self, request, interface, comment):
+        self.event_log.append({
+            "id": self.id,
+            "customer-request-id": request.id,
+            "type": "branch",
+            "logical_clock": self.logical_clock,
+            "interface": interface,
+            "comment": comment,
+        })
 
     def tellBranches(self, request):
+        propagation_interface = (
+            "propagate_withdraw"
+            if request.interface == "withdraw"
+            else "propagate_deposit"
+        )
         for branch_id, stub in self.stubList:
             self.logical_clock += 1
             propagation = banks_pb2.Request(
                 id=request.id,
-                interface="propagate_withdraw" if request.interface == "withdraw" else "propagate_deposit",
+                interface=propagation_interface,
                 money=request.money,
                 logical_clock=self.logical_clock,
-                sender_branch_id=self.id
+                sender_branch_id=self.id,
             )
-            self.event_log.append({
-                "id": self.id,
-                "customer-request-id": request.id,
-                "type": "branch",
-                "logical_clock": self.logical_clock,
-                "interface": propagation.interface,
-                "comment": f"event_sent to branch {branch_id}",
-            })
+            self.record_event(
+                propagation,
+                propagation.interface,
+                f"event_sent to branch {branch_id}",
+            )
             stub.MsgDelivery(propagation, timeout=30)
 
     def startServer(self, ready_event, shutdown_event):
         self.shutdown_event = shutdown_event
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         banks_pb2_grpc.add_RPCServicer_to_server(self, server)
-
-        port = 50000 + self.id
-        server.add_insecure_port(f"[::]:{port}")
-
+        server.add_insecure_port(f"[::]:{50000 + self.id}")
         server.start()
         ready_event.set()
-        shutdown_event.wait()       # Wait until main signals us to stop.
-        server.stop(grace=5).wait() # Allow active calls time to finish.
+        shutdown_event.wait()
+        server.stop(grace=5).wait()
 
     def MsgDelivery(self, request, context):
-        self.logical_clock = max(self.logical_clock, request.logical_clock) + 1
+        if request.interface == "get_events":
+            return banks_pb2.Response(
+                balance=self.balance,
+                event_log_json=json.dumps(self.event_log),
+            )
         if request.interface == "shutdown":
-            # All branch processes share this event; the client signals it once
-            # after the scheduled customer events have completed.
             self.shutdown_event.set()
-        elif request.interface == "deposit":
+            return banks_pb2.Response(balance=self.balance)
+        if request.interface not in (
+            "query",
+            "deposit",
+            "withdraw",
+            "propagate_deposit",
+            "propagate_withdraw",
+        ):
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Unknown operation")
+
+        self.logical_clock = max(self.logical_clock, request.logical_clock) + 1
+        if request.interface == "query":
+            return banks_pb2.Response(balance=self.balance)
+
+        if request.interface == "deposit":
             self.balance += int(request.money)
-            self.event_log.append({
-                "id": self.id,
-                "customer-request-id": request.id,
-                "type": "branch",
-                "logical_clock": self.logical_clock,
-                "interface": request.interface,
-                "comment": f"event_recv from customer {self.id}",
-            })
+            self.record_event(request, "deposit", f"event_recv from customer {self.id}")
             self.tellBranches(request)
         elif request.interface == "withdraw":
             self.balance -= int(request.money)
-            self.event_log.append({
-                "id": self.id,
-                "customer-request-id": request.id,
-                "type": "branch",
-                "logical_clock": self.logical_clock,
-                "interface": request.interface,
-                "comment": f"event_recv from customer {self.id}",
-            })
+            self.record_event(request, "withdraw", f"event_recv from customer {self.id}")
             self.tellBranches(request)
         elif request.interface == "propagate_deposit":
             self.balance += int(request.money)
-            self.event_log.append({
-                "id": self.id,
-                "customer-request-id": request.id,
-                "type": "branch",
-                "logical_clock": self.logical_clock,
-                "interface": request.interface,
-                "comment": f"event_recv from branch {request.sender_branch_id}",
-            })
-        elif request.interface == "propagate_withdraw":
+            self.record_event(request, request.interface, f"event_recv from branch {request.sender_branch_id}")
+        else:
             self.balance -= int(request.money)
-            self.event_log.append({
-                "id": self.id,
-                "customer-request-id": request.id,
-                "type": "branch",
-                "logical_clock": self.logical_clock,
-                "interface": request.interface,
-                "comment": f"event_recv from branch {request.sender_branch_id}",
-            })
-        elif request.interface != "query":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Unknown operation")
+            self.record_event(request, request.interface, f"event_recv from branch {request.sender_branch_id}")
+
         return banks_pb2.Response(balance=self.balance)

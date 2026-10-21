@@ -1,30 +1,13 @@
-"""Execute customer events in event-ID order and write output.json."""
+"""Execute customer events and write the Logical Clock event log."""
 
 import argparse
 import json
-from multiprocessing import Process, Queue
-from queue import Empty
 
 import grpc
 
 import banks_pb2
 import banks_pb2_grpc
 from customer import Customer
-
-
-def run_customer(customer_id, events, tasks, results):
-    customer = Customer(customer_id, events)
-    customer.createStub()
-    while True:
-        event = tasks.get()
-        if event is None:
-            break
-        try:
-            customer.executeEvents([event])
-            results.put((event["id"], customer.recvMsg[-1], None))
-        except Exception as exc:
-            results.put((event["id"], None, str(exc)))
-            break
 
 
 def wait_for_branches(branch_ids):
@@ -37,16 +20,27 @@ def wait_for_branches(branch_ids):
 
 
 def stop_branches(branch_ids):
-    # A shutdown RPC sets the shared event in all branch processes.
     for branch_id in branch_ids:
         try:
             with grpc.insecure_channel(f"localhost:{50000 + branch_id}") as channel:
-                stub = banks_pb2_grpc.RPCStub(channel)
-                stub.MsgDelivery(banks_pb2.Request(interface="shutdown"), timeout=3)
+                banks_pb2_grpc.RPCStub(channel).MsgDelivery(
+                    banks_pb2.Request(interface="shutdown"), timeout=3
+                )
                 return
         except grpc.RpcError:
             continue
     raise RuntimeError("Could not signal the branch servers to shut down")
+
+
+def get_branch_events(branch_ids):
+    events = []
+    for branch_id in branch_ids:
+        with grpc.insecure_channel(f"localhost:{50000 + branch_id}") as channel:
+            response = banks_pb2_grpc.RPCStub(channel).MsgDelivery(
+                banks_pb2.Request(interface="get_events"), timeout=10
+            )
+            events.extend(json.loads(response.event_log_json))
+    return events
 
 
 def build_schedule(customers, branch_ids):
@@ -76,54 +70,30 @@ def main():
     branch_ids = [record["id"] for record in records if record["type"] == "branch"]
     if not branch_ids:
         raise ValueError("Input must contain at least one branch")
-    output = [{"id": customer["id"], "recv": []} for customer in customers]
-    events_by_id = build_schedule(customers, branch_ids)
-    remaining = [len(customer["events"]) for customer in customers]
 
-    results = Queue()
-    workers = {}
+    schedule = build_schedule(customers, branch_ids)
+    customer_processes = [Customer(customer["id"], customer["events"]) for customer in customers]
     try:
         wait_for_branches(branch_ids)
-        for event_id in sorted(events_by_id):
-            index, event = events_by_id[event_id]
-            if index not in workers:
-                tasks = Queue()
-                customer = customers[index]
-                process = Process(target=run_customer, args=(customer["id"], customer["events"], tasks, results))
-                process.start()
-                workers[index] = (process, tasks)
+        for event_id in sorted(schedule):
+            customer_index, event = schedule[event_id]
+            customer = customer_processes[customer_index]
+            if customer.stub is None:
+                customer.createStub()
+            customer.executeEvents([event])
 
-            process, tasks = workers[index]
-            tasks.put(event)
-            try:
-                received_id, result, error = results.get(timeout=120)
-            except Empty as exc:
-                raise RuntimeError(f"Timed out waiting for event {event_id}") from exc
-            if received_id != event_id or error is not None:
-                raise RuntimeError(f"Customer event {event_id} failed: {error}")
-            output[index]["recv"].append(result)
-            remaining[index] -= 1
-            if remaining[index] == 0:
-                tasks.put(None)
-                process.join(timeout=10)
-                if process.is_alive() or process.exitcode != 0:
-                    raise RuntimeError(f"Customer {customers[index]['id']} did not exit cleanly")
-                tasks.close()
-                del workers[index]
-
+        customer_events = [event for customer in customer_processes for event in customer.event_log]
+        output = customer_events + get_branch_events(branch_ids)
+        output.sort(key=lambda event: (
+            event["customer-request-id"],
+            event["logical_clock"],
+            event["id"],
+        ))
         with open("output.json", "w", encoding="utf-8") as output_file:
             json.dump(output, output_file, indent=2)
             output_file.write("\n")
-        print(f"Wrote {len(output)} customer records to output.json.", flush=True)
+        print(f"Wrote {len(output)} logical-clock events to output.json.", flush=True)
     finally:
-        for process, tasks in workers.values():
-            tasks.put(None)
-            process.join(timeout=5)
-            if process.is_alive():
-                process.terminate()
-                process.join()
-            tasks.close()
-        results.close()
         stop_branches(branch_ids)
 
 

@@ -1,53 +1,46 @@
 import grpc
+
 import banks_pb2
 import banks_pb2_grpc
 
+
 class Customer:
     def __init__(self, id, events):
-        # unique ID of the Customer
         self.id = id
-        # events from the input
         self.events = events
-        # a list of received messages used for debugging purpose
-        self.recvMsg = list()
-        # pointer for the stub
         self.stub = None
-
-        self.event_log = list()
-
+        self.recvMsg = []
+        self.event_log = []
         self.logical_clock = 0
 
     def createStub(self):
-        port = 50000 + self.id
-        channel = grpc.insecure_channel(f"localhost:{port}")
+        channel = grpc.insecure_channel(f"localhost:{50000 + self.id}")
         self.stub = banks_pb2_grpc.RPCStub(channel)
 
-
     def executeEvents(self, events=None):
-        # The scheduler can send one event at a time to preserve global order.
         for event in self.events if events is None else events:
-            self.logical_clock += 1 
+            self.logical_clock += 1
             request = banks_pb2.Request(
                 id=event["id"],
                 interface=event["interface"],
                 money=event.get("money", 0),
-                logical_clock=self.logical_clock
+                logical_clock=self.logical_clock,
             )
-            self.event_log.append({
-                "id": self.id,
-                "customer-request-id": request.id,
-                "type": "customer",
-                "logical_clock": self.logical_clock,
-                "interface": request.interface,
-                "comment": f"event_sent from customer {self.id}"
-            })
+            if event["interface"] in ("deposit", "withdraw"):
+                self.event_log.append({
+                    "id": self.id,
+                    "customer-request-id": event["id"],
+                    "type": "customer",
+                    "logical_clock": self.logical_clock,
+                    "interface": event["interface"],
+                    "comment": f"event_sent from customer {self.id}",
+                })
+
             response = self.stub.MsgDelivery(request, timeout=60)
-            if event["interface"] == "query":
-                result = {"interface": "query", "balance": response.balance}
-            else:
-                # A successful RPC means the branch finished its propagation.
-                result = {"interface": event["interface"], "result": "success"}
-            
+            result = (
+                {"interface": "query", "balance": response.balance}
+                if event["interface"] == "query"
+                else {"interface": event["interface"], "result": "success"}
+            )
             self.recvMsg.append(result)
-            
         return self.recvMsg
