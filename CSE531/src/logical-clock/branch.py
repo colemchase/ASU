@@ -32,7 +32,6 @@ class Branch(banks_pb2_grpc.RPCServicer):
         for stub in self.stubList:
             self.logical_clock += 1
             if request.interface == "deposit":
-                self.balance += int(request.money)
                 propagation = banks_pb2.Request(
                     id=request.id,
                     interface="propagate_deposit",
@@ -40,7 +39,6 @@ class Branch(banks_pb2_grpc.RPCServicer):
                     logical_clock=self.logical_clock
                 )
             else:
-                self.balance -= int(request.money)
                 propagation = banks_pb2.Request(
                     id=request.id,
                     interface="propagate_withdraw",
@@ -69,8 +67,10 @@ class Branch(banks_pb2_grpc.RPCServicer):
             # after the scheduled customer events have completed.
             self.shutdown_event.set()
         elif request.interface == "deposit":
+            self.balance += int(request.money)
             self.tellBranches(request)
         elif request.interface == "withdraw":
+            self.balance -= int(request.money)
             self.tellBranches(request)
         elif request.interface == "propagate_deposit":
             self.balance += int(request.money)
