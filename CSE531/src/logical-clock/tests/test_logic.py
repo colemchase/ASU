@@ -20,18 +20,31 @@ class BranchTests(unittest.TestCase):
             self.branch = Branch(1, 400, [1, 2])
         self.context = Mock()
 
-    def deliver(self, operation, money=0):
-        request = banks_pb2.Request(id=7, interface=operation, money=money)
+    def deliver(self, operation, money=0, logical_clock=0):
+        request = banks_pb2.Request(
+            id=7,
+            interface=operation,
+            money=money,
+            logical_clock=logical_clock,
+        )
         return self.branch.MsgDelivery(request, self.context)
 
     def test_query_returns_balance_without_propagation(self):
         self.assertEqual(self.deliver("query").balance, 400)
         self.peer.MsgDelivery.assert_not_called()
 
+    def test_received_event_uses_maximum_clock_then_increments(self):
+        self.deliver("query", logical_clock=7)
+        self.assertEqual(self.branch.logical_clock, 8)
+        self.deliver("query", logical_clock=3)
+        self.assertEqual(self.branch.logical_clock, 9)
+
     def test_deposit_updates_and_propagates(self):
-        self.assertEqual(self.deliver("deposit", 10).balance, 410)
+        self.assertEqual(self.deliver("deposit", 10, logical_clock=5).balance, 410)
         request = self.peer.MsgDelivery.call_args.args[0]
         self.assertEqual((request.id, request.interface, request.money), (7, "propagate_deposit", 10))
+        self.assertEqual(request.logical_clock, 7)
+        self.assertEqual(self.branch.logical_clock, 7)
 
     def test_withdraw_updates_and_propagates(self):
         self.assertEqual(self.deliver("withdraw", 10).balance, 390)

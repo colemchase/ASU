@@ -15,6 +15,8 @@ class Branch(banks_pb2_grpc.RPCServicer):
 
         self.recvMsg = list()
 
+        self.logical_clock = 0
+
         # iterate the processID of the branches
         # the list of process IDs of the branches
         self.branches = branches
@@ -28,7 +30,24 @@ class Branch(banks_pb2_grpc.RPCServicer):
 
     def tellBranches(self, request):
         for stub in self.stubList:
-            stub.MsgDelivery(request, timeout=30)
+            self.logical_clock += 1
+            if request.interface == "deposit":
+                self.balance += int(request.money)
+                propagation = banks_pb2.Request(
+                    id=request.id,
+                    interface="propagate_deposit",
+                    money=request.money,
+                    logical_clock=self.logical_clock
+                )
+            else:
+                self.balance += int(request.money)
+                propagation = banks_pb2.Request(
+                    id=request.id,
+                    interface="propagate_withdraw",
+                    money=request.money,
+                    logical_clock=self.logical_clock
+                )
+            stub.MsgDelivery(propagation, timeout=30)
 
     def startServer(self, ready_event, shutdown_event):
         self.shutdown_event = shutdown_event
@@ -44,26 +63,15 @@ class Branch(banks_pb2_grpc.RPCServicer):
         server.stop(grace=5).wait() # Allow active calls time to finish.
 
     def MsgDelivery(self, request, context):
+        self.logical_clock = max(self.logical_clock, request.logical_clock) + 1
         if request.interface == "shutdown":
             # All branch processes share this event; the client signals it once
             # after the scheduled customer events have completed.
             self.shutdown_event.set()
         elif request.interface == "deposit":
-            self.balance += int(request.money)
-            propagation = banks_pb2.Request(
-                id=request.id,
-                interface="propagate_deposit",
-                money=request.money,
-            )
-            self.tellBranches(propagation)
+            self.tellBranches(request)
         elif request.interface == "withdraw":
-            self.balance -= int(request.money)
-            propagation = banks_pb2.Request(
-                id=request.id,
-                interface="propagate_withdraw",
-                money=request.money,
-            )
-            self.tellBranches(propagation)
+            self.tellBranches(request)
         elif request.interface == "propagate_deposit":
             self.balance += int(request.money)
         elif request.interface == "propagate_withdraw":

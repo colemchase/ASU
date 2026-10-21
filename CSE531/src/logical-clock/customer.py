@@ -13,6 +13,8 @@ class Customer:
         # pointer for the stub
         self.stub = None
 
+        self.logical_clock = 0
+
     def createStub(self):
         port = 50000 + self.id
         channel = grpc.insecure_channel(f"localhost:{port}")
@@ -22,10 +24,12 @@ class Customer:
     def executeEvents(self, events=None):
         # The scheduler can send one event at a time to preserve global order.
         for event in self.events if events is None else events:
+            self.logical_clock += 1 
             request = banks_pb2.Request(
                 id=event["id"],
                 interface=event["interface"],
-                money=event.get("money", 0)
+                money=event.get("money", 0),
+                logical_clock=self.logical_clock
             )
             response = self.stub.MsgDelivery(request, timeout=60)
             if event["interface"] == "query":

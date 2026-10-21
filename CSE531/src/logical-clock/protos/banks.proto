@@ -8,6 +8,7 @@ message Request {
   int32 id = 1;
   string interface = 2;
   int32 money = 3;
+  int32 logical_clock = 4;
 }
 
 message Response {
