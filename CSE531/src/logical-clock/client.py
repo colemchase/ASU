@@ -10,9 +10,13 @@ import banks_pb2_grpc
 from customer import Customer
 
 
+PORT_BASE = 50000
+
+
 def wait_for_branches(branch_ids):
+    """Block until every branch server is accepting RPCs."""
     for branch_id in branch_ids:
-        with grpc.insecure_channel(f"localhost:{50000 + branch_id}") as channel:
+        with grpc.insecure_channel(f"localhost:{PORT_BASE + branch_id}") as channel:
             try:
                 grpc.channel_ready_future(channel).result(timeout=60)
             except grpc.FutureTimeoutError as exc:
@@ -20,9 +24,10 @@ def wait_for_branches(branch_ids):
 
 
 def stop_branches(branch_ids):
+    """Signal the shared server shutdown event through any live branch."""
     for branch_id in branch_ids:
         try:
-            with grpc.insecure_channel(f"localhost:{50000 + branch_id}") as channel:
+            with grpc.insecure_channel(f"localhost:{PORT_BASE + branch_id}") as channel:
                 banks_pb2_grpc.RPCStub(channel).MsgDelivery(
                     banks_pb2.Request(interface="shutdown"), timeout=3
                 )
@@ -33,6 +38,7 @@ def stop_branches(branch_ids):
 
 
 def get_branch_events(branch_ids):
+    """Collect Part 2 branch logs and the branch entries used in Part 3."""
     branch_sections = []
     all_events = []
     for branch_id in branch_ids:
@@ -59,6 +65,7 @@ def request_id(event):
 
 
 def customer_requests(customer):
+    """Normalize the Logical Clock and earlier gRPC input-file formats."""
     requests = customer.get("customer-requests", customer.get("events", []))
     return [{
         "id": request_id(request),
@@ -68,6 +75,7 @@ def customer_requests(customer):
 
 
 def event_details(event):
+    """Remove process-only fields when embedding an event in Part 1 or Part 2."""
     return {
         "customer-request-id": event["customer-request-id"],
         "logical_clock": event["logical_clock"],
@@ -126,6 +134,7 @@ def main():
         customer_events = [event for customer in customer_processes for event in customer.event_log]
         branch_sections, branch_events = get_branch_events(branch_ids)
         request_events = customer_events + branch_events
+        # Part 3 is grouped by customer request and ordered by Lamport time.
         request_events.sort(key=lambda event: (
             event["customer-request-id"],
             event["logical_clock"],

@@ -1,10 +1,16 @@
+"""Customer process behavior and its Lamport logical-clock state."""
+
 import grpc
 
 import banks_pb2
 import banks_pb2_grpc
 
 
+PORT_BASE = 50000
+
+
 class Customer:
+    """Send customer requests to the matching branch with logical timestamps."""
     def __init__(self, id, events):
         self.id = id
         self.events = events
@@ -14,11 +20,12 @@ class Customer:
         self.logical_clock = 0
 
     def createStub(self):
-        channel = grpc.insecure_channel(f"localhost:{50000 + self.id}")
+        channel = grpc.insecure_channel(f"localhost:{PORT_BASE + self.id}")
         self.stub = banks_pb2_grpc.RPCStub(channel)
 
     def executeEvents(self, events=None):
         for event in self.events if events is None else events:
+            # A local send is a Lamport event.
             self.logical_clock += 1
             request = banks_pb2.Request(
                 id=event["id"],
@@ -27,6 +34,7 @@ class Customer:
                 logical_clock=self.logical_clock,
             )
             if event["interface"] in ("deposit", "withdraw"):
+                # The assignment's three output sections focus on update requests.
                 self.event_log.append({
                     "id": self.id,
                     "customer-request-id": event["id"],

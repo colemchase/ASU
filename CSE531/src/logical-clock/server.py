@@ -8,6 +8,7 @@ from branch import Branch
 
 
 def run_branch(branch_id, balance, branch_ids, ready_event, shutdown_event):
+    """Process entry point used for an individual branch."""
     branch = Branch(branch_id, balance, branch_ids)
     branch.startServer(ready_event, shutdown_event)
 
@@ -24,6 +25,7 @@ def main():
     if not branches or len(set(branch_ids)) != len(branch_ids):
         raise ValueError("Input must contain branches with unique IDs")
 
+    # All branch processes observe this event after the client finishes.
     shutdown_event = Event()
     processes = []
     ready_events = []
