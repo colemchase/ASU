@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+service RPC {
+  rpc MsgDelivery(Request) returns (Response);
+}
+
+message Request {
+  int32 id = 1;
+  string interface = 2;
+  int32 money = 3;
+}
+
+message Response {
+  int32 balance = 1;
+}

@@ -7,6 +7,12 @@ returns the contacted branch's local balance.
 
 ## Setup and execution
 
+From `CSE531/projects/grpc`, first enter the gRPC source directory:
+
+```sh
+cd ../../src/grpc
+```
+
 Use Python 3.13 and install the assignment's required library versions:
 
 ```sh
