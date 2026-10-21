@@ -9,6 +9,7 @@ message Request {
   string interface = 2;
   int32 money = 3;
   int32 logical_clock = 4;
+  int32 sender_branch_id = 5;
 }
 
 message Response {

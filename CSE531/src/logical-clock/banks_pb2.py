@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x62\x61nks.proto\"N\n\x07Request\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tinterface\x18\x02 \x01(\t\x12\r\n\x05money\x18\x03 \x01(\x05\x12\x15\n\rlogical_clock\x18\x04 \x01(\x05\"\x1b\n\x08Response\x12\x0f\n\x07\x62\x61lance\x18\x01 \x01(\x05\x32)\n\x03RPC\x12\"\n\x0bMsgDelivery\x12\x08.Request\x1a\t.Responseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x62\x61nks.proto\"h\n\x07Request\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x11\n\tinterface\x18\x02 \x01(\t\x12\r\n\x05money\x18\x03 \x01(\x05\x12\x15\n\rlogical_clock\x18\x04 \x01(\x05\x12\x18\n\x10sender_branch_id\x18\x05 \x01(\x05\"\x1b\n\x08Response\x12\x0f\n\x07\x62\x61lance\x18\x01 \x01(\x05\x32)\n\x03RPC\x12\"\n\x0bMsgDelivery\x12\x08.Request\x1a\t.Responseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,9 +32,9 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'banks_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_REQUEST']._serialized_start=15
-  _globals['_REQUEST']._serialized_end=93
-  _globals['_RESPONSE']._serialized_start=95
-  _globals['_RESPONSE']._serialized_end=122
-  _globals['_RPC']._serialized_start=124
-  _globals['_RPC']._serialized_end=165
+  _globals['_REQUEST']._serialized_end=119
+  _globals['_RESPONSE']._serialized_start=121
+  _globals['_RESPONSE']._serialized_end=148
+  _globals['_RPC']._serialized_start=150
+  _globals['_RPC']._serialized_end=191
 # @@protoc_insertion_point(module_scope)

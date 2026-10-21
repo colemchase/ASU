@@ -37,7 +37,8 @@ class Branch(banks_pb2_grpc.RPCServicer):
                 id=request.id,
                 interface="propagate_withdraw" if request.interface == "withdraw" else "propagate_deposit",
                 money=request.money,
-                logical_clock=self.logical_clock
+                logical_clock=self.logical_clock,
+                sender_branch_id=self.id
             )
             self.event_log.append({
                 "id": self.id,
@@ -98,7 +99,7 @@ class Branch(banks_pb2_grpc.RPCServicer):
                 "type": "branch",
                 "logical_clock": self.logical_clock,
                 "interface": request.interface,
-                "comment": f"event_recv from branch {request.id}",
+                "comment": f"event_recv from branch {request.sender_branch_id}",
             })
         elif request.interface == "propagate_withdraw":
             self.balance -= int(request.money)
@@ -108,7 +109,7 @@ class Branch(banks_pb2_grpc.RPCServicer):
                 "type": "branch",
                 "logical_clock": self.logical_clock,
                 "interface": request.interface,
-                "comment": f"event_recv from branch {request.id}",
+                "comment": f"event_recv from branch {request.sender_branch_id}",
             })
         elif request.interface != "query":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Unknown operation")
