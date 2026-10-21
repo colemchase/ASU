@@ -40,7 +40,7 @@ class Branch(banks_pb2_grpc.RPCServicer):
                     logical_clock=self.logical_clock
                 )
             else:
-                self.balance += int(request.money)
+                self.balance -= int(request.money)
                 propagation = banks_pb2.Request(
                     id=request.id,
                     interface="propagate_withdraw",
