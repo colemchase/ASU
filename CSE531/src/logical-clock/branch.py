@@ -70,9 +70,25 @@ class Branch(banks_pb2_grpc.RPCServicer):
             self.shutdown_event.set()
         elif request.interface == "deposit":
             self.balance += int(request.money)
+            self.event_log.append({
+                "id": self.id,
+                "customer-request-id": request.id,
+                "type": "branch",
+                "logical_clock": self.logical_clock,
+                "interface": request.interface,
+                "comment": f"event_recv from customer {self.id}",
+            })
             self.tellBranches(request)
         elif request.interface == "withdraw":
             self.balance -= int(request.money)
+            self.event_log.append({
+                "id": self.id,
+                "customer-request-id": request.id,
+                "type": "branch",
+                "logical_clock": self.logical_clock,
+                "interface": request.interface,
+                "comment": f"event_recv from customer {self.id}",
+            })
             self.tellBranches(request)
         elif request.interface == "propagate_deposit":
             self.balance += int(request.money)
@@ -82,7 +98,7 @@ class Branch(banks_pb2_grpc.RPCServicer):
                 "type": "branch",
                 "logical_clock": self.logical_clock,
                 "interface": request.interface,
-                "comment": f"event_received on branch {self.id}",
+                "comment": f"event_recv from branch {request.id}",
             })
         elif request.interface == "propagate_withdraw":
             self.balance -= int(request.money)
@@ -92,7 +108,7 @@ class Branch(banks_pb2_grpc.RPCServicer):
                 "type": "branch",
                 "logical_clock": self.logical_clock,
                 "interface": request.interface,
-                "comment": f"event_received on branch {self.id}",
+                "comment": f"event_recv from branch {request.id}",
             })
         elif request.interface != "query":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Unknown operation")
