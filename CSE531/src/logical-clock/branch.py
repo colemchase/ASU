@@ -33,9 +33,9 @@ class Branch(banks_pb2_grpc.RPCServicer):
 
     def tellBranches(self, request):
         propagation_interface = (
-            "propagate_withdraw"
+            "propogate_withdraw"
             if request.interface == "withdraw"
-            else "propagate_deposit"
+            else "propogate_deposit"
         )
         for branch_id, stub in self.stubList:
             self.logical_clock += 1
@@ -76,8 +76,8 @@ class Branch(banks_pb2_grpc.RPCServicer):
             "query",
             "deposit",
             "withdraw",
-            "propagate_deposit",
-            "propagate_withdraw",
+            "propogate_deposit",
+            "propogate_withdraw",
         ):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Unknown operation")
 
@@ -93,7 +93,7 @@ class Branch(banks_pb2_grpc.RPCServicer):
             self.balance -= int(request.money)
             self.record_event(request, "withdraw", f"event_recv from customer {self.id}")
             self.tellBranches(request)
-        elif request.interface == "propagate_deposit":
+        elif request.interface == "propogate_deposit":
             self.balance += int(request.money)
             self.record_event(request, request.interface, f"event_recv from branch {request.sender_branch_id}")
         else:

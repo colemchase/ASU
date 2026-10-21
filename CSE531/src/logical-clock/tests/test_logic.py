@@ -42,21 +42,21 @@ class BranchTests(unittest.TestCase):
     def test_deposit_updates_and_propagates(self):
         self.assertEqual(self.deliver("deposit", 10, logical_clock=5).balance, 410)
         request = self.peer.MsgDelivery.call_args.args[0]
-        self.assertEqual((request.id, request.interface, request.money), (7, "propagate_deposit", 10))
+        self.assertEqual((request.id, request.interface, request.money), (7, "propogate_deposit", 10))
         self.assertEqual(request.logical_clock, 7)
         self.assertEqual(self.branch.logical_clock, 7)
 
     def test_withdraw_updates_and_propagates(self):
         self.assertEqual(self.deliver("withdraw", 10).balance, 390)
         request = self.peer.MsgDelivery.call_args.args[0]
-        self.assertEqual((request.id, request.interface, request.money), (7, "propagate_withdraw", 10))
+        self.assertEqual((request.id, request.interface, request.money), (7, "propogate_withdraw", 10))
 
     def test_propagated_deposit_updates_without_rebroadcast(self):
-        self.assertEqual(self.deliver("propagate_deposit", 10).balance, 410)
+        self.assertEqual(self.deliver("propogate_deposit", 10).balance, 410)
         self.peer.MsgDelivery.assert_not_called()
 
     def test_propagated_withdraw_updates_without_rebroadcast(self):
-        self.assertEqual(self.deliver("propagate_withdraw", 10).balance, 390)
+        self.assertEqual(self.deliver("propogate_withdraw", 10).balance, 390)
         self.peer.MsgDelivery.assert_not_called()
 
     def test_unknown_operation_aborts(self):
