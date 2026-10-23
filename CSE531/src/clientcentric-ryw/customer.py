@@ -16,8 +16,9 @@ class Customer:
         self.write_log = list() # branchid:writeid
 
 
-    def createStub(self):
-        port = 50000 + self.id
+    def createStub(self, branch_id=None):
+        target_branch_id = self.id if branch_id is None else branch_id
+        port = 50000 + target_branch_id
         channel = grpc.insecure_channel(f"localhost:{port}")
         self.stub = banks_pb2_grpc.RPCStub(channel)
 
@@ -25,6 +26,7 @@ class Customer:
     def executeEvents(self, events=None):
         # The scheduler can send one event at a time to preserve global order.
         for event in self.events if events is None else events:
+            self.createStub(event["branch"])
             request = banks_pb2.Request(
                 id=event["id"],
                 interface=event["interface"],

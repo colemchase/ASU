@@ -1,0 +1,267 @@
+[
+  {
+    "id": 1,
+    "recv": [
+      {
+        "interface": "query",
+        "balance": 0
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "1:1"
+      },
+      {
+        "interface": "query",
+        "balance": 10
+      },
+      {
+        "interface": "query",
+        "balance": 10
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "2:1"
+      },
+      {
+        "interface": "query",
+        "balance": 20
+      },
+      {
+        "interface": "query",
+        "balance": 20
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "3:1"
+      },
+      {
+        "interface": "query",
+        "balance": 30
+      },
+      {
+        "interface": "query",
+        "balance": 30
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "4:1"
+      },
+      {
+        "interface": "query",
+        "balance": 40
+      },
+      {
+        "interface": "query",
+        "balance": 40
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "5:1"
+      },
+      {
+        "interface": "query",
+        "balance": 50
+      },
+      {
+        "interface": "query",
+        "balance": 50
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "6:1"
+      },
+      {
+        "interface": "query",
+        "balance": 60
+      },
+      {
+        "interface": "query",
+        "balance": 60
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "7:1"
+      },
+      {
+        "interface": "query",
+        "balance": 70
+      },
+      {
+        "interface": "query",
+        "balance": 70
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "8:1"
+      },
+      {
+        "interface": "query",
+        "balance": 80
+      },
+      {
+        "interface": "query",
+        "balance": 80
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "9:1"
+      },
+      {
+        "interface": "query",
+        "balance": 90
+      },
+      {
+        "interface": "query",
+        "balance": 90
+      },
+      {
+        "interface": "deposit",
+        "result": "success",
+        "write id": "10:1"
+      },
+      {
+        "interface": "query",
+        "balance": 100
+      },
+      {
+        "interface": "query",
+        "balance": 100
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "1:2"
+      },
+      {
+        "interface": "query",
+        "balance": 90
+      },
+      {
+        "interface": "query",
+        "balance": 90
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "2:2"
+      },
+      {
+        "interface": "query",
+        "balance": 80
+      },
+      {
+        "interface": "query",
+        "balance": 80
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "3:2"
+      },
+      {
+        "interface": "query",
+        "balance": 70
+      },
+      {
+        "interface": "query",
+        "balance": 70
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "4:2"
+      },
+      {
+        "interface": "query",
+        "balance": 60
+      },
+      {
+        "interface": "query",
+        "balance": 60
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "5:2"
+      },
+      {
+        "interface": "query",
+        "balance": 50
+      },
+      {
+        "interface": "query",
+        "balance": 50
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "6:2"
+      },
+      {
+        "interface": "query",
+        "balance": 40
+      },
+      {
+        "interface": "query",
+        "balance": 40
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "7:2"
+      },
+      {
+        "interface": "query",
+        "balance": 30
+      },
+      {
+        "interface": "query",
+        "balance": 30
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "8:2"
+      },
+      {
+        "interface": "query",
+        "balance": 20
+      },
+      {
+        "interface": "query",
+        "balance": 20
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "9:2"
+      },
+      {
+        "interface": "query",
+        "balance": 10
+      },
+      {
+        "interface": "query",
+        "balance": 10
+      },
+      {
+        "interface": "withdraw",
+        "result": "success",
+        "write id": "10:2"
+      },
+      {
+        "interface": "query",
+        "balance": 0
+      }
+    ]
+  }
+]
