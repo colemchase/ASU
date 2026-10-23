@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+service RPC {
+  rpc MsgDelivery(Request) returns (Response);
+}
+
+message Request {
+  int32 id = 1;
+  string interface = 2;
+  int32 money = 3;
+  repeated string writeset = 4;
+}
+
+message Response {
+  int32 balance = 1;
+  string write_id = 2;
+}

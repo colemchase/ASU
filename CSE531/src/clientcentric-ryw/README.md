@@ -14,18 +14,19 @@ must return a balance that includes that deposit rather than a stale balance.
 
 ## Required Design
 
-The implementation will extend the gRPC project while preserving its file and
+The implementation extends the gRPC project while preserving its file and
 execution structure.
 
-- Each branch generates an identifier for every successful `deposit` or
-  `withdraw` operation and maintains a set of known write IDs (`writeset`).
+- Each branch generates a globally unique identifier for every successful
+  `deposit` or `withdraw` operation and maintains a set of known write IDs
+  (`writeset`) plus the associated write records.
 - Each customer maintains the write IDs returned for its own successful write
   operations.
 - The customer sends its current writeset with every request, including
   requests sent after moving to a different branch.
 - A receiving branch compares the customer writeset with its own writeset
-  before processing the request. It must ensure the customer sees its prior
-  writes before returning a read result.
+  before processing the request. Before returning a query result, it directly
+  fetches and applies each missing write record from the originating branch.
 - `query`, `deposit`, and `withdraw` may target different branches through the
   event's `branch` field.
 
