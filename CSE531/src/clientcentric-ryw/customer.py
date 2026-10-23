@@ -29,7 +29,7 @@ class Customer:
                 id=event["id"],
                 interface=event["interface"],
                 money=event.get("money", 0),
-                write_set=self.write_log
+                writeset=self.write_log
             )
             response = self.stub.MsgDelivery(request, timeout=60)
             if event["interface"] == "query":

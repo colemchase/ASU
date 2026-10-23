@@ -15,4 +15,6 @@ message Request {
 message Response {
   int32 balance = 1;
   string write_id = 2;
+  string interface = 3;
+  int32 money = 4;
 }
