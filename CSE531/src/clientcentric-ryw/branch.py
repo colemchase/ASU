@@ -52,6 +52,41 @@ class Branch(banks_pb2_grpc.RPCServicer):
         for stub in self.peer_stubs.values():
             stub.MsgDelivery(request, timeout=30)
 
+    def synchronize_missing_writes(self, customer_writeset, context):
+        """Fetch and apply customer writes that this branch has not seen yet."""
+        missing_write_ids = set(customer_writeset) - set(self.write_log)
+        for write_id in missing_write_ids:
+            origin_text, separator, _ = write_id.partition(":")
+            if not separator:
+                context.abort(
+                    grpc.StatusCode.INVALID_ARGUMENT,
+                    f"Invalid write ID: {write_id}",
+                )
+
+            try:
+                origin_branch_id = int(origin_text)
+                origin_stub = self.peer_stubs[origin_branch_id]
+            except (KeyError, ValueError):
+                context.abort(
+                    grpc.StatusCode.FAILED_PRECONDITION,
+                    f"Cannot locate the origin branch for write ID: {write_id}",
+                )
+
+            # The origin branch owns the full record; the customer has only its ID.
+            response = origin_stub.MsgDelivery(
+                banks_pb2.Request(interface="get_write", write_id=write_id),
+                timeout=30,
+            )
+            if response.write_id != write_id:
+                context.abort(
+                    grpc.StatusCode.INTERNAL,
+                    f"Received the wrong write record for: {write_id}",
+                )
+
+            # A concurrently propagated write may have arrived while it was fetched.
+            if write_id not in self.write_log:
+                self.apply_write(write_id, response.interface, response.money)
+
     def startServer(self, ready_event, shutdown_event):
         """Start this branch's gRPC server and wait for the shared shutdown signal."""
         self.shutdown_event = shutdown_event
@@ -69,6 +104,25 @@ class Branch(banks_pb2_grpc.RPCServicer):
         if request.interface == "shutdown":
             self.shutdown_event.set()
             return banks_pb2.Response(balance=self.balance)
+
+        if request.interface == "get_write":
+            record = self.write_log.get(request.write_id)
+            if record is None:
+                context.abort(
+                    grpc.StatusCode.NOT_FOUND,
+                    f"Unknown write ID: {request.write_id}",
+                )
+            return banks_pb2.Response(
+                balance=self.balance,
+                write_id=request.write_id,
+                interface=record["interface"],
+                money=record["money"],
+            )
+
+        if request.interface in ("query", "deposit", "withdraw"):
+            # RYW guarantee: this branch must include the customer's previous
+            # writes before it answers a read or commits the next customer write.
+            self.synchronize_missing_writes(request.writeset, context)
 
         if request.interface == "query":
             return banks_pb2.Response(balance=self.balance)

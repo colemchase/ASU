@@ -31,8 +31,13 @@ class Customer:
         """Send events in the order supplied by the scheduler and record responses."""
         events_to_run = self.events if events is None else events
         for event in events_to_run:
+            # Course materials use both ``branch`` and ``dest`` for this field.
+            destination_branch_id = event.get("branch", event.get("dest"))
+            if destination_branch_id is None:
+                raise ValueError("Customer event is missing its destination branch")
+
             # An event can target a branch different from the customer's own ID.
-            self.createStub(event["branch"])
+            self.createStub(destination_branch_id)
             request = banks_pb2.Request(
                 id=event["id"],
                 interface=event["interface"],
@@ -44,7 +49,7 @@ class Customer:
             if event["interface"] == "query":
                 result = {
                     "interface": "query",
-                    "branch": event["branch"],
+                    "branch": destination_branch_id,
                     "balance": response.balance,
                 }
             else:
@@ -52,7 +57,7 @@ class Customer:
                 self.write_log.append(response.write_id)
                 result = {
                     "interface": event["interface"],
-                    "branch": event["branch"],
+                    "branch": destination_branch_id,
                     "result": "success",
                 }
             self.recvMsg.append(result)

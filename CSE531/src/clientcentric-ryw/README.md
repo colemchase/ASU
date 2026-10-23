@@ -25,7 +25,7 @@ execution structure.
 - The customer sends its current writeset with every request, including
   requests sent after moving to a different branch.
 - A receiving branch compares the customer writeset with its own writeset
-  before processing the request. Before returning a query result, it directly
+  before processing any customer query, deposit, or withdrawal. It directly
   fetches and applies each missing write record from the originating branch.
 - `query`, `deposit`, and `withdraw` may target different branches through the
   event's `branch` field.
@@ -44,7 +44,12 @@ shape:
   {
     "id": 1,
     "recv": [
-      {"interface": "deposit", "branch": 1, "result": "success"},
+      {"interface": "deposit", "branch": 1, "result": "success"}
+    ]
+  },
+  {
+    "id": 1,
+    "recv": [
       {"interface": "query", "branch": 2, "balance": 400}
     ]
   }

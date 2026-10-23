@@ -76,7 +76,9 @@ def main():
     branch_ids = [record["id"] for record in records if record["type"] == "branch"]
     if not branch_ids:
         raise ValueError("Input must contain at least one branch")
-    output = [{"id": customer["id"], "recv": []} for customer in customers]
+    # The supplied RYW example writes one customer receive record per event.
+    # A customer ID may therefore appear multiple times in output.json.
+    output = []
     events_by_id = build_schedule(customers, branch_ids)
     remaining = [len(customer["events"]) for customer in customers]
 
@@ -101,7 +103,7 @@ def main():
                 raise RuntimeError(f"Timed out waiting for event {event_id}") from exc
             if received_id != event_id or error is not None:
                 raise RuntimeError(f"Customer event {event_id} failed: {error}")
-            output[index]["recv"].append(result)
+            output.append({"id": customers[index]["id"], "recv": [result]})
             remaining[index] -= 1
             if remaining[index] == 0:
                 tasks.put(None)
