@@ -9,6 +9,7 @@ message Request {
   string interface = 2;
   int32 money = 3;
   repeated string writeset = 4;
+  string write_id = 5;
 }
 
 message Response {

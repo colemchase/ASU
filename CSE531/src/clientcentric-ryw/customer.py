@@ -13,6 +13,9 @@ class Customer:
         # pointer for the stub
         self.stub = None
 
+        self.write_log = list() # branchid:writeid
+
+
     def createStub(self):
         port = 50000 + self.id
         channel = grpc.insecure_channel(f"localhost:{port}")
@@ -25,13 +28,15 @@ class Customer:
             request = banks_pb2.Request(
                 id=event["id"],
                 interface=event["interface"],
-                money=event.get("money", 0)
+                money=event.get("money", 0),
+                write_set=self.write_log
             )
             response = self.stub.MsgDelivery(request, timeout=60)
             if event["interface"] == "query":
                 result = {"interface": "query", "balance": response.balance}
             else:
                 # A successful RPC means the branch finished its propagation.
-                result = {"interface": event["interface"], "result": "success"}
+                self.write_log.append(response.write_id)
+                result = {"interface": event["interface"], "result": "success", "write id":response.write_id}
             self.recvMsg.append(result)
         return self.recvMsg

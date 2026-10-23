@@ -15,6 +15,10 @@ class Branch(banks_pb2_grpc.RPCServicer):
 
         self.recvMsg = list()
 
+        self.write_counter = 0
+
+        self.write_log = {} # write_id -> write_record
+
         # iterate the processID of the branches
         # the list of process IDs of the branches
         self.branches = branches
@@ -44,30 +48,41 @@ class Branch(banks_pb2_grpc.RPCServicer):
         server.stop(grace=5).wait() # Allow active calls time to finish.
 
     def MsgDelivery(self, request, context):
+        
         if request.interface == "shutdown":
             # All branch processes share this event; the client signals it once
             # after the scheduled customer events have completed.
             self.shutdown_event.set()
         elif request.interface == "deposit":
+            self.write_counter += 1
+            write_id = f"{self.id}:{self.write_counter}"
+            self.write_log[write_id] = {"interface":"withdraw", "money":request.money}
             self.balance += int(request.money)
             propagation = banks_pb2.Request(
                 id=request.id,
                 interface="propagate_deposit",
                 money=request.money,
+                write_id=write_id,
             )
             self.tellBranches(propagation)
         elif request.interface == "withdraw":
+            self.write_counter += 1
+            write_id = f"{self.id}:{self.write_counter}"
+            self.write_log[write_id] = {"interface":"withdraw", "money":request.money}
             self.balance -= int(request.money)
             propagation = banks_pb2.Request(
                 id=request.id,
                 interface="propagate_withdraw",
                 money=request.money,
+                write_id=write_id,
             )
             self.tellBranches(propagation)
         elif request.interface == "propagate_deposit":
             self.balance += int(request.money)
+            self.write_log[f"{request.id}:{request.write_id}"] = {"interface":"withdraw", "money":request.money}
         elif request.interface == "propagate_withdraw":
             self.balance -= int(request.money)
+            self.write_log[f"{request.id}:{request.write_id}"] = {"interface":"withdraw", "money":request.money}
         elif request.interface != "query":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Unknown operation")
-        return banks_pb2.Response(balance=self.balance)
+        return banks_pb2.Response(balance=self.balance, write_id=write_id)
