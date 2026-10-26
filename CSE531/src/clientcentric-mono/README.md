@@ -1,53 +1,60 @@
-# Client-Centric Consistency: Monotonic Writes
+# Client-Centric Consistency: Read Your Writes
 
-This project extends the gRPC banking system to enforce **Monotonic Writes**
-client-centric consistency. A customer's successive writes must be applied in
-the same order at every branch replica, even when the customer changes the
-branch handling the next request.
+This project extends the gRPC banking system to enforce the **Read Your
+Writes** client-centric consistency guarantee. A customer may send consecutive
+requests to different branch replicas, but every later read by that customer
+must observe the effects of its earlier successful writes.
 
 ## Consistency Requirement
 
-For a process and data item, each write must complete before that same process
-performs its next write. For example, if a customer deposits `$200` at branch 1
-and then deposits `$300` at branch 2, branch 2 must observe and apply the
-`$200` write before accepting the `$300` write. The final replicated balance
-must therefore be `$500`, not `$300`.
+If a customer writes to one branch and later reads from another branch, the
+later read must include all writes previously completed by that customer. For
+example, after a customer deposits `$400` at branch 1, a query at branch 2
+must return a balance that includes that deposit rather than a stale balance.
 
 ## Required Design
 
-The implementation will extend the gRPC project while preserving its file and
+The implementation extends the gRPC project while preserving its file and
 execution structure.
 
-- Each branch generates an identifier for every successful `deposit` or
-  `withdraw` operation and maintains the write IDs it knows (`writeset`).
-- The customer stores the IDs of its completed writes in its own writeset.
-- The customer sends its current writeset with every request to a branch.
-- Before a branch accepts a new customer write, it compares the received
-  writeset with its local writeset and ensures all earlier writes from that
-  customer are present first.
-- The implementation must preserve the customer's write order when requests
-  move between branches.
-- Queries may be routed to another branch after the write sequence and should
-  reflect the correctly ordered final balance.
+- Each branch generates a globally unique identifier for every successful
+  `deposit` or `withdraw` operation and maintains a set of known write IDs
+  (`writeset`) plus the associated write records.
+- Each customer maintains the write IDs returned for its own successful write
+  operations.
+- The customer sends its current writeset with every request, including
+  requests sent after moving to a different branch.
+- A receiving branch compares the customer writeset with its own writeset
+  before processing any customer query, deposit, or withdrawal. It directly
+  fetches and applies each missing write record from the originating branch.
+- `query`, `deposit`, and `withdraw` may target different branches through the
+  event's `branch` field.
 
 ## Input and Output
 
-`input.json` contains one customer, multiple branch replicas, and customer
-events. The overview calls the destination field `dest`; the provided input
-uses `branch`. The implementation should support the field used by the test
-input and can safely normalize both names.
+`input.json` contains one customer process, multiple branch processes, and
+customer events. Each event identifies its operation, amount when applicable,
+and destination branch.
 
-The required `output.json` is a list of final balances by customer:
+The generated `output.json` must contain customer receive records in this
+shape:
 
 ```json
 [
-  {"id": 1, "balance": 0}
+  {
+    "id": 1,
+    "recv": [
+      {"interface": "deposit", "branch": 1, "result": "success"}
+    ]
+  },
+  {
+    "id": 1,
+    "recv": [
+      {"interface": "query", "branch": 2, "balance": 400}
+    ]
+  }
 ]
 ```
-
-For the overview example, the customer deposits `$400`, withdraws `$400` at a
-different branch, and then queries that branch. The correct final balance is
-therefore `0`; a stale result of `400` demonstrates a Monotonic Writes failure.
 
 ## Required Files
 
@@ -75,10 +82,10 @@ python server.py input.json
 python client.py input.json
 ```
 
-The test objective is that every returned balance reflects the customer's
-writes in order across all branches.
+The test objective is that every query reflects the customer's earlier writes,
+even when the query is routed to a different branch.
 
 ## Course Materials
 
 The project overview and written-report template are stored in
-`../../projects/clientcentric-mono/`.
+`../../projects/clientcentric-ryw/`.
