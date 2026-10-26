@@ -1,4 +1,4 @@
-"""gRPC branch replica for the Read Your Writes project."""
+"""gRPC branch replica for the Monotonic project."""
 
 from concurrent import futures
 
@@ -119,9 +119,9 @@ class Branch(banks_pb2_grpc.RPCServicer):
                 money=record["money"],
             )
 
-        if request.interface in ("query", "deposit", "withdraw"):
-            # RYW guarantee: this branch must include the customer's previous
-            # writes before it answers a read or commits the next customer write.
+        if request.interface in ("deposit", "withdraw"):
+            # Monotonic guarantee: this branch must include the customer's previous
+            # writes before it commits the next customer write.
             self.synchronize_missing_writes(request.writeset, context)
 
         if request.interface == "query":
